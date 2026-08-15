@@ -2,9 +2,18 @@ package com.hei.course.entity;
 
 import com.hei.course.model.RoleEnum;
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 import java.time.Instant;
 import java.util.UUID;
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@SuperBuilder
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
