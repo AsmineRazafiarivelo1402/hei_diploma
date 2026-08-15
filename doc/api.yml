@@ -1,0 +1,194 @@
+openapi: 3.0.3
+info:
+  title: HEI Diploma - User Management API
+  description: API for creating and managing users (students, teachers, administrators) in the HEI Diploma application.
+  version: "1.0.0"
+
+servers:
+  - url: https://api.hei-diploma.example.com
+    description: Main server
+
+tags:
+  - name: Users
+    description: User creation and management
+
+paths:
+  /api/students:
+    post:
+      tags: [Users]
+      summary: Create a student
+      operationId: createStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Student successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/teachers:
+    post:
+      tags: [Users]
+      summary: Create a teacher
+      operationId: createTeacher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Teacher successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admins:
+    post:
+      tags: [Users]
+      summary: Create an administrator
+      operationId: createAdmin
+      security:
+        - bearerAuth: [ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Administrator successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Not authenticated
+        '403':
+          description: Access denied (insufficient role)
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CreateUserRequest:
+      type: object
+      required:
+        - reference
+        - firstName
+        - lastName
+        - birthdate
+        - email
+        - rawPassword
+      properties:
+        reference:
+          type: string
+          description: Functional reference/identifier of the user
+          example: "STU-2026-0001"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        birthdate:
+          type: string
+          format: date-time
+          example: "2001-05-14T00:00:00Z"
+        email:
+          type: string
+          format: email
+          example: "john.doe@hei.mg"
+        rawPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: Plain-text password provided by the client; hashed server-side before storage and never persisted or returned in clear text.
+          example: "S3curePassword!"
+        address:
+          type: string
+          example: "123 Main Street, Antananarivo"
+        phoneNumber:
+          type: string
+          example: "+261340000000"
+
+    UserResponse:
+      type: object
+      properties:
+        reference:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date-time
+        email:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        role:
+          type: string
+          enum: [STUDENT, TEACHER, ADMIN]
+      description: The password (hashed or plain) is never returned in the response.
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Field 'email' is required."
+        path:
+          type: string
+          example: "/api/students"
+
+  responses:
+    BadRequest:
+      description: Invalid request (missing or malformed field)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: A user with this reference or email already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
