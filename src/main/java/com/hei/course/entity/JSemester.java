@@ -4,7 +4,11 @@ import com.hei.course.model.SemesterEnum;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "semester")
 public class JSemester {
