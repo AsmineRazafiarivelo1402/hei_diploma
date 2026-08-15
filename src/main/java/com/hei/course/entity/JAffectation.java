@@ -3,7 +3,11 @@ package com.hei.course.entity;
 import com.hei.course.model.StatusAffectationEnum;
 import jakarta.persistence.*;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "affectation")
 public class JAffectation {
