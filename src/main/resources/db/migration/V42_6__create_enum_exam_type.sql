@@ -1,0 +1,1 @@
+CREATE TYPE exam_type_enum AS ENUM ('UNIQUE', 'CONTINUOUS');
