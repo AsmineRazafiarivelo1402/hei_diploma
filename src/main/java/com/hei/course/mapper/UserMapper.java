@@ -1,6 +1,5 @@
 package com.hei.course.mapper;
 
-
 import com.hei.course.entity.JAdmin;
 import com.hei.course.entity.JStudent;
 import com.hei.course.entity.JTeacher;
@@ -12,60 +11,59 @@ import com.hei.course.model.Users;
 
 public class UserMapper {
 
-    private UserMapper() {
+  private UserMapper() {}
+
+  public static Users toModel(JUsers entity) {
+    Users user;
+
+    if (entity instanceof JStudent) {
+      user = new Student();
+    } else if (entity instanceof JTeacher) {
+      user = new Teacher();
+    } else if (entity instanceof JAdmin) {
+      user = new Admin();
+    } else {
+      throw new IllegalArgumentException("Unknown users: " + entity.getClass());
     }
 
-    public static Users toModel(JUsers entity) {
-        Users user;
+    user.setId(entity.getId());
+    user.setReference(entity.getReference());
+    user.setFirstName(entity.getFirstName());
+    user.setLastName(entity.getLastName());
+    user.setBirthdate(entity.getBirthdate());
+    user.setEmail(entity.getEmail());
+    user.setPassword(entity.getPassword());
+    user.setAddress(entity.getAddress());
+    user.setPhoneNumber(entity.getPhoneNumber());
+    user.setRole(entity.getRole());
 
-        if (entity instanceof JStudent) {
-            user = new Student();
-        } else if (entity instanceof JTeacher) {
-            user = new Teacher();
-        } else if (entity instanceof JAdmin) {
-            user = new Admin();
-        } else {
-            throw new IllegalArgumentException("Unknown users: " + entity.getClass());
-        }
+    return user;
+  }
 
-        user.setId(entity.getId());
-        user.setReference(entity.getReference());
-        user.setFirstName(entity.getFirstName());
-        user.setLastName(entity.getLastName());
-        user.setBirthdate(entity.getBirthdate());
-        user.setEmail(entity.getEmail());
-        user.setPassword(entity.getPassword());
-        user.setAddress(entity.getAddress());
-        user.setPhoneNumber(entity.getPhoneNumber());
-        user.setRole(entity.getRole());
+  public static JUsers toEntity(Users user) {
+    JUsers entity;
 
-        return user;
+    if (user instanceof Student) {
+      entity = new JStudent();
+    } else if (user instanceof Teacher) {
+      entity = new JTeacher();
+    } else if (user instanceof Admin) {
+      entity = new JAdmin();
+    } else {
+      throw new IllegalArgumentException("Unknown users: " + user.getClass());
     }
 
-    public static JUsers toEntity(Users user) {
-        JUsers entity;
+    entity.setId(user.getId());
+    entity.setReference(user.getReference());
+    entity.setFirstName(user.getFirstName());
+    entity.setLastName(user.getLastName());
+    entity.setBirthdate(user.getBirthdate());
+    entity.setEmail(user.getEmail());
+    entity.setPassword(user.getPassword());
+    entity.setAddress(user.getAddress());
+    entity.setPhoneNumber(user.getPhoneNumber());
+    entity.setRole(user.getRole());
 
-        if (user instanceof Student) {
-            entity = new JStudent();
-        } else if (user instanceof Teacher) {
-            entity = new JTeacher();
-        } else if (user instanceof Admin) {
-            entity = new JAdmin();
-        } else {
-            throw new IllegalArgumentException("Unknown users: " + user.getClass());
-        }
-
-        entity.setId(user.getId());
-        entity.setReference(user.getReference());
-        entity.setFirstName(user.getFirstName());
-        entity.setLastName(user.getLastName());
-        entity.setBirthdate(user.getBirthdate());
-        entity.setEmail(user.getEmail());
-        entity.setPassword(user.getPassword());
-        entity.setAddress(user.getAddress());
-        entity.setPhoneNumber(user.getPhoneNumber());
-        entity.setRole(user.getRole());
-
-        return entity;
-    }
+    return entity;
+  }
 }

@@ -15,46 +15,35 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityBeansConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(HttpMethod.GET, "/ping")
-                                        .permitAll()
-
-                                        .requestMatchers(HttpMethod.POST, "/users")
-                                        .hasRole("ADMIN")
-
-                                        .requestMatchers(HttpMethod.GET, "/diplomas")
-                                        .hasRole("ADMIN")
-
-
-                                        .requestMatchers(HttpMethod.POST, "/notes")
-                                        .hasAnyRole("TEACHER", "ADMIN")
-                                        .requestMatchers(HttpMethod.PUT, "/notes/**")
-                                        .hasAnyRole("TEACHER", "ADMIN")
-
-
-                                        .requestMatchers(HttpMethod.GET, "/notes/**")
-                                        .hasAnyRole("TEACHER", "ADMIN")
-
-                                        .requestMatchers(HttpMethod.GET, "/releves/{studentId}")
-                                        .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
-
-
-                                        .requestMatchers(HttpMethod.GET, "/releves/me/**")
-                                        .hasRole("STUDENT")
-
-                                        .anyRequest()
-                                        .authenticated())
-                .httpBasic(withDefaults());
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(HttpMethod.GET, "/ping")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/users")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/diplomas")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/notes")
+                    .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/notes/**")
+                    .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/notes/**")
+                    .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/releves/{studentId}")
+                    .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/releves/me/**")
+                    .hasRole("STUDENT")
+                    .anyRequest()
+                    .authenticated())
+        .httpBasic(withDefaults());
+    return http.build();
+  }
 }
-
