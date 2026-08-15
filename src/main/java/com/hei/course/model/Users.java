@@ -22,4 +22,5 @@ public abstract class Users {
   private String address;
   private String phoneNumber;
   private RoleEnum role;
+  private String password;
 }
