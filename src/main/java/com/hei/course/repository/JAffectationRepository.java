@@ -10,5 +10,5 @@ public interface JAffectationRepository extends JpaRepository<JAffectation, UUID
 
   List<JAffectation> findByStudent_Id(UUID studentId);
 
-  Optional<JAffectation> findByStudent_IdAndSemestre_Id(UUID studentId, UUID semestreId);
+  Optional<JAffectation> findByStudent_IdAndSemester_Id(UUID studentId, UUID semesterId);
 }
