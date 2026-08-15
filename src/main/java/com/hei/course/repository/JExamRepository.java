@@ -9,5 +9,5 @@ public interface JExamRepository extends JpaRepository<JExam, UUID> {
 
   List<JExam> findByCourses_Id(UUID coursesId);
 
-  List<JExam> findBySemestre_Id(UUID semestreId);
+  List<JExam> findBySemester_Id(UUID semesterId);
 }
