@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JSemesterRepository extends JpaRepository<JSemester, UUID> {
 
-  List<JSemester> findBySemestreEnum(SemesterEnum semesterEnum);
+  List<JSemester> findBySemesterEnum(SemesterEnum semesterEnum);
 }
