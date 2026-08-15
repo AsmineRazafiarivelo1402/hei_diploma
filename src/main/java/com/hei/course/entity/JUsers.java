@@ -4,7 +4,16 @@ import com.hei.course.model.RoleEnum;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@SuperBuilder
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)

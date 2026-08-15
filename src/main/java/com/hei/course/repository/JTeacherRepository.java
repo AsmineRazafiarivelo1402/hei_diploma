@@ -1,0 +1,7 @@
+package com.hei.course.repository;
+
+import com.hei.course.entity.JTeacher;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface JTeacherRepository extends JpaRepository<JTeacher, UUID> {}
