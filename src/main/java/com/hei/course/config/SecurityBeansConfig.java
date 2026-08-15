@@ -41,6 +41,8 @@ public class SecurityBeansConfig {
                     .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
                     .requestMatchers(HttpMethod.GET, "/releves/me/**")
                     .hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/promotions/view")
+                    .authenticated()
                     .anyRequest()
                     .authenticated())
         .httpBasic(withDefaults());
