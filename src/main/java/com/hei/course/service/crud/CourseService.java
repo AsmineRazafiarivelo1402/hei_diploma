@@ -13,52 +13,50 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CourseService {
 
-    private final JCourseRepository courseRepository;
+  private final JCourseRepository courseRepository;
 
-    public Courses create(Courses model) {
-        JCourses entity = CourseMapper.toEntity(model);
+  public Courses create(Courses model) {
+    JCourses entity = CourseMapper.toEntity(model);
 
-        JCourses savedEntity = courseRepository.save(entity);
+    JCourses savedEntity = courseRepository.save(entity);
 
-        return CourseMapper.toModel(savedEntity);
-    }
+    return CourseMapper.toModel(savedEntity);
+  }
 
-    public List<Courses> findAll() {
-        return courseRepository.findAll().stream()
-                .map(CourseMapper::toModel)
-                .toList();
-    }
+  public List<Courses> findAll() {
+    return courseRepository.findAll().stream().map(CourseMapper::toModel).toList();
+  }
 
-    public Courses findById(UUID id) {
-        JCourses entity =
-                courseRepository
-                        .findById(id)
-                        .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+  public Courses findById(UUID id) {
+    JCourses entity =
+        courseRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
 
-        return CourseMapper.toModel(entity);
-    }
+    return CourseMapper.toModel(entity);
+  }
 
-    public Courses update(UUID id, Courses model) {
-        JCourses entity =
-                courseRepository
-                        .findById(id)
-                        .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+  public Courses update(UUID id, Courses model) {
+    JCourses entity =
+        courseRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
 
-        entity.setReference(model.getReference());
-        entity.setTitle(model.getTitle());
-        entity.setCredit(model.getCredit());
+    entity.setReference(model.getReference());
+    entity.setTitle(model.getTitle());
+    entity.setCredit(model.getCredit());
 
-        JCourses updatedEntity = courseRepository.save(entity);
+    JCourses updatedEntity = courseRepository.save(entity);
 
-        return CourseMapper.toModel(updatedEntity);
-    }
+    return CourseMapper.toModel(updatedEntity);
+  }
 
-    public void delete(UUID id) {
-        JCourses entity =
-                courseRepository
-                        .findById(id)
-                        .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+  public void delete(UUID id) {
+    JCourses entity =
+        courseRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
 
-        courseRepository.delete(entity);
-    }
+    courseRepository.delete(entity);
+  }
 }
