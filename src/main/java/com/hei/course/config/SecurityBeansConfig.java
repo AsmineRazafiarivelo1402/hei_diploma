@@ -123,6 +123,14 @@ public class SecurityBeansConfig {
                     .hasRole("STUDENT")
 
                     // Promotions
+                    .requestMatchers(HttpMethod.POST, "/promotions")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/promotions/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/promotions/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/promotions/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/promotions/view")
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/semesters")
