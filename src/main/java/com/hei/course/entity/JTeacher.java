@@ -3,7 +3,15 @@ package com.hei.course.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@SuperBuilder
 @Entity
 @Table(name = "teacher")
 @PrimaryKeyJoinColumn(name = "id")
