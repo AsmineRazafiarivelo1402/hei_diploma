@@ -3,7 +3,13 @@ package com.hei.course.entity;
 import com.hei.course.model.SpecialityEnum;
 import jakarta.persistence.*;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "course_speciality")
 public class JCourseSpeciality {
