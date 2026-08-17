@@ -2,7 +2,13 @@ package com.hei.course.entity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "teaching")
 public class JTeaching {
