@@ -3,12 +3,20 @@ package com.hei.course.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "note_history")
 public class JNoteHistory {
 
-  @Id @GeneratedValue private UUID id;
+  @Id
+  @GeneratedValue
+  private UUID id;
 
   @Column(name = "old_value", nullable = false)
   private double oldValue;
