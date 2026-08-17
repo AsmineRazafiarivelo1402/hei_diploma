@@ -39,6 +39,8 @@ public class SecurityBeansConfig {
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/releves/{studentId}")
                     .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
+                    .requestMatchers(HttpMethod.POST, "/releves/{studentId}/email")
+                    .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
                     .requestMatchers(HttpMethod.GET, "/releves/me/**")
                     .hasRole("STUDENT")
                     .requestMatchers(HttpMethod.GET, "/promotions/view")
