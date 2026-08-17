@@ -38,12 +38,14 @@ public class GlobalExceptionHandler {
     return buildResponse(
         HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getRequestURI());
   }
+
   @ExceptionHandler(ForbiddenException.class)
   public ResponseEntity<ErrorResponse> handleForbidden(
-          ForbiddenException exception, HttpServletRequest request) {
+      ForbiddenException exception, HttpServletRequest request) {
 
     return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage(), request.getRequestURI());
   }
+
   private ResponseEntity<ErrorResponse> buildResponse(
       HttpStatus status, String message, String path) {
 

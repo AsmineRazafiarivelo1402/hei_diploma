@@ -25,190 +25,157 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NoteHistoryService {
 
-    private final JNoteHistoryRepository noteHistoryRepository;
-    private final JNoteRepository noteRepository;
-    private final JUsersRepository usersRepository;
-    private final JTeachingRepository teachingRepository;
+  private final JNoteHistoryRepository noteHistoryRepository;
+  private final JNoteRepository noteRepository;
+  private final JUsersRepository usersRepository;
+  private final JTeachingRepository teachingRepository;
 
-    public NoteHistory create(
-            NoteHistory model,
-            UUID noteId,
-            Users currentUser) {
+  public NoteHistory create(NoteHistory model, UUID noteId, Users currentUser) {
 
-        JNote note =
-                noteRepository
-                        .findById(noteId)
-                        .orElseThrow(() -> new NotFoundException("Note not found: " + noteId));
+    JNote note =
+        noteRepository
+            .findById(noteId)
+            .orElseThrow(() -> new NotFoundException("Note not found: " + noteId));
 
-        checkNoteAccess(note, currentUser);
+    checkNoteAccess(note, currentUser);
 
-        JUsers updatedBy =
-                usersRepository
-                        .findById(currentUser.getId())
-                        .orElseThrow(
-                                () -> new NotFoundException("User not found: " + currentUser.getId()));
+    JUsers updatedBy =
+        usersRepository
+            .findById(currentUser.getId())
+            .orElseThrow(() -> new NotFoundException("User not found: " + currentUser.getId()));
 
-        if (model.getUpdateAt() == null) {
-            model.setUpdateAt(Instant.now());
-        }
-
-        JNoteHistory entity =
-                NoteHistoryMapper.toEntity(model, note, updatedBy);
-
-        JNoteHistory savedEntity =
-                noteHistoryRepository.save(entity);
-
-        return NoteHistoryMapper.toModel(savedEntity);
+    if (model.getUpdateAt() == null) {
+      model.setUpdateAt(Instant.now());
     }
 
-    public List<NoteHistory> findAll(Users currentUser) {
+    JNoteHistory entity = NoteHistoryMapper.toEntity(model, note, updatedBy);
 
-        if (currentUser.getRole() == RoleEnum.STUDENT) {
-            throw new AccessDeniedException("Students cannot access note histories");
-        }
+    JNoteHistory savedEntity = noteHistoryRepository.save(entity);
 
-        return noteHistoryRepository.findAll().stream()
-                .filter(history -> canAccessHistory(history, currentUser))
-                .map(NoteHistoryMapper::toModel)
-                .toList();
+    return NoteHistoryMapper.toModel(savedEntity);
+  }
+
+  public List<NoteHistory> findAll(Users currentUser) {
+
+    if (currentUser.getRole() == RoleEnum.STUDENT) {
+      throw new AccessDeniedException("Students cannot access note histories");
     }
 
-    public NoteHistory findById(
-            UUID id,
-            Users currentUser) {
+    return noteHistoryRepository.findAll().stream()
+        .filter(history -> canAccessHistory(history, currentUser))
+        .map(NoteHistoryMapper::toModel)
+        .toList();
+  }
 
-        JNoteHistory entity =
-                noteHistoryRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Note history not found: " + id));
+  public NoteHistory findById(UUID id, Users currentUser) {
 
-        checkHistoryAccess(entity, currentUser);
+    JNoteHistory entity =
+        noteHistoryRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Note history not found: " + id));
 
-        return NoteHistoryMapper.toModel(entity);
+    checkHistoryAccess(entity, currentUser);
+
+    return NoteHistoryMapper.toModel(entity);
+  }
+
+  public NoteHistory update(UUID id, NoteHistory model, UUID noteId, Users currentUser) {
+
+    JNoteHistory entity =
+        noteHistoryRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Note history not found: " + id));
+
+    checkHistoryAccess(entity, currentUser);
+
+    JNote note =
+        noteRepository
+            .findById(noteId)
+            .orElseThrow(() -> new NotFoundException("Note not found: " + noteId));
+
+    checkNoteAccess(note, currentUser);
+
+    entity.setOldValue(model.getOldValue());
+    entity.setNewValue(model.getNewValue());
+    entity.setReason(model.getReason());
+    entity.setNote(note);
+
+    if (model.getUpdateAt() != null) {
+      entity.setUpdateAt(model.getUpdateAt());
     }
 
-    public NoteHistory update(
-            UUID id,
-            NoteHistory model,
-            UUID noteId,
-            Users currentUser) {
+    JUsers updatedBy =
+        usersRepository
+            .findById(currentUser.getId())
+            .orElseThrow(() -> new NotFoundException("User not found: " + currentUser.getId()));
 
-        JNoteHistory entity =
-                noteHistoryRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Note history not found: " + id));
+    entity.setUpdatedBy(updatedBy);
 
-        checkHistoryAccess(entity, currentUser);
+    JNoteHistory updatedEntity = noteHistoryRepository.save(entity);
 
-        JNote note =
-                noteRepository
-                        .findById(noteId)
-                        .orElseThrow(
-                                () -> new NotFoundException("Note not found: " + noteId));
+    return NoteHistoryMapper.toModel(updatedEntity);
+  }
 
-        checkNoteAccess(note, currentUser);
+  public void delete(UUID id, Users currentUser) {
 
-        entity.setOldValue(model.getOldValue());
-        entity.setNewValue(model.getNewValue());
-        entity.setReason(model.getReason());
-        entity.setNote(note);
+    JNoteHistory entity =
+        noteHistoryRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Note history not found: " + id));
 
-        if (model.getUpdateAt() != null) {
-            entity.setUpdateAt(model.getUpdateAt());
-        }
+    checkHistoryAccess(entity, currentUser);
 
-        JUsers updatedBy =
-                usersRepository
-                        .findById(currentUser.getId())
-                        .orElseThrow(
-                                () -> new NotFoundException("User not found: " + currentUser.getId()));
+    noteHistoryRepository.delete(entity);
+  }
 
-        entity.setUpdatedBy(updatedBy);
+  private void checkHistoryAccess(JNoteHistory history, Users currentUser) {
 
-        JNoteHistory updatedEntity =
-                noteHistoryRepository.save(entity);
-
-        return NoteHistoryMapper.toModel(updatedEntity);
+    if (currentUser.getRole() == RoleEnum.ADMIN) {
+      return;
     }
 
-    public void delete(
-            UUID id,
-            Users currentUser) {
-
-        JNoteHistory entity =
-                noteHistoryRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Note history not found: " + id));
-
-        checkHistoryAccess(entity, currentUser);
-
-        noteHistoryRepository.delete(entity);
+    if (currentUser.getRole() != RoleEnum.TEACHER) {
+      throw new AccessDeniedException("You cannot access this note history");
     }
 
-    private void checkHistoryAccess(
-            JNoteHistory history,
-            Users currentUser) {
+    checkNoteAccess(history.getNote(), currentUser);
+  }
 
-        if (currentUser.getRole() == RoleEnum.ADMIN) {
-            return;
-        }
+  private void checkNoteAccess(JNote note, Users currentUser) {
 
-        if (currentUser.getRole() != RoleEnum.TEACHER) {
-            throw new AccessDeniedException(
-                    "You cannot access this note history");
-        }
-
-        checkNoteAccess(history.getNote(), currentUser);
+    if (currentUser.getRole() == RoleEnum.ADMIN) {
+      return;
     }
 
-    private void checkNoteAccess(
-            JNote note,
-            Users currentUser) {
-
-        if (currentUser.getRole() == RoleEnum.ADMIN) {
-            return;
-        }
-
-        if (currentUser.getRole() != RoleEnum.TEACHER) {
-            throw new AccessDeniedException(
-                    "You cannot manage note histories");
-        }
-
-        JExam exam = note.getExam();
-        JCourses course = exam.getCourses();
-
-        boolean teachesCourse =
-                teachingRepository.existsByCourses_IdAndTeacher_Id(
-                        course.getId(),
-                        currentUser.getId());
-
-        if (!teachesCourse) {
-            throw new AccessDeniedException(
-                    "You cannot manage note histories for this course");
-        }
+    if (currentUser.getRole() != RoleEnum.TEACHER) {
+      throw new AccessDeniedException("You cannot manage note histories");
     }
 
-    private boolean canAccessHistory(
-            JNoteHistory history,
-            Users currentUser) {
+    JExam exam = note.getExam();
+    JCourses course = exam.getCourses();
 
-        if (currentUser.getRole() == RoleEnum.ADMIN) {
-            return true;
-        }
+    boolean teachesCourse =
+        teachingRepository.existsByCourses_IdAndTeacher_Id(course.getId(), currentUser.getId());
 
-        if (currentUser.getRole() != RoleEnum.TEACHER) {
-            return false;
-        }
-
-        JNote note = history.getNote();
-        JExam exam = note.getExam();
-        JCourses course = exam.getCourses();
-
-        return teachingRepository.existsByCourses_IdAndTeacher_Id(
-                course.getId(),
-                currentUser.getId());
+    if (!teachesCourse) {
+      throw new AccessDeniedException("You cannot manage note histories for this course");
     }
+  }
+
+  private boolean canAccessHistory(JNoteHistory history, Users currentUser) {
+
+    if (currentUser.getRole() == RoleEnum.ADMIN) {
+      return true;
+    }
+
+    if (currentUser.getRole() != RoleEnum.TEACHER) {
+      return false;
+    }
+
+    JNote note = history.getNote();
+    JExam exam = note.getExam();
+    JCourses course = exam.getCourses();
+
+    return teachingRepository.existsByCourses_IdAndTeacher_Id(course.getId(), currentUser.getId());
+  }
 }

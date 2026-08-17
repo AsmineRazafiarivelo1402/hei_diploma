@@ -14,9 +14,7 @@ import lombok.*;
 @Table(name = "note_history")
 public class JNoteHistory {
 
-  @Id
-  @GeneratedValue
-  private UUID id;
+  @Id @GeneratedValue private UUID id;
 
   @Column(name = "old_value", nullable = false)
   private double oldValue;
