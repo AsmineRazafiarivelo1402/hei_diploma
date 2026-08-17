@@ -2,7 +2,15 @@ package com.hei.course.entity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
+import lombok.*;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "group_exam")
 public class JGroupExam {

@@ -25,8 +25,12 @@ public class SecurityBeansConfig {
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.GET, "/ping")
+                auth
+                    // Public
+                    .requestMatchers(HttpMethod.GET, "/ping")
                     .permitAll()
+
+                    // Users
                     .requestMatchers(HttpMethod.POST, "/users")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/users/**")
@@ -35,6 +39,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/users/**")
                     .hasRole("ADMIN")
+
+                    // Students
                     .requestMatchers(HttpMethod.POST, "/students")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/students/**")
@@ -43,6 +49,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/students/**")
                     .hasRole("ADMIN")
+
+                    // Teachers
                     .requestMatchers(HttpMethod.POST, "/teachers")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/teachers/**")
@@ -51,6 +59,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/teachers/**")
                     .hasRole("ADMIN")
+
+                    // Groups
                     .requestMatchers(HttpMethod.POST, "/groups")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/groups/**")
@@ -59,14 +69,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/groups/**")
                     .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/exams")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/exams/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/exams/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/exams/**")
-                    .hasRole("ADMIN")
+
+                    // Courses
                     .requestMatchers(HttpMethod.POST, "/courses")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/courses/**")
@@ -75,6 +79,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/courses/**")
                     .hasRole("ADMIN")
+
+                    // Exams
                     .requestMatchers(HttpMethod.POST, "/exams")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/exams/**")
@@ -83,14 +89,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/exams/**")
                     .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/courses")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/courses/**")
-                    .hasAnyRole("ADMIN", "TEACHER")
-                    .requestMatchers(HttpMethod.PUT, "/courses/**")
-                    .hasAnyRole("ADMIN", "TEACHER")
-                    .requestMatchers(HttpMethod.DELETE, "/courses/**")
-                    .hasAnyRole("ADMIN", "TEACHER")
+
+                    // Notes
                     .requestMatchers(HttpMethod.POST, "/notes")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/notes/**")
@@ -99,6 +99,8 @@ public class SecurityBeansConfig {
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/notes/**")
                     .hasAnyRole("TEACHER", "ADMIN")
+
+                    // Note histories
                     .requestMatchers(HttpMethod.POST, "/note-histories")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/note-histories/**")
@@ -107,16 +109,63 @@ public class SecurityBeansConfig {
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/note-histories/**")
                     .hasAnyRole("TEACHER", "ADMIN")
+
+                    // Diplomas
                     .requestMatchers(HttpMethod.GET, "/diplomas")
                     .hasRole("ADMIN")
+
+                    // Transcripts
                     .requestMatchers(HttpMethod.GET, "/releves/{studentId}")
                     .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
                     .requestMatchers(HttpMethod.POST, "/releves/{studentId}/email")
                     .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
                     .requestMatchers(HttpMethod.GET, "/releves/me/**")
                     .hasRole("STUDENT")
+
+                    // Promotions
+                    .requestMatchers(HttpMethod.POST, "/promotions")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/promotions/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/promotions/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/promotions/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/promotions/view")
                     .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/semesters")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/semesters/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/semesters/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/semesters/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/affectations")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/affectations/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/affectations/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/affectations/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/group-exams")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/group-exams/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/group-exams/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/group-exams/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/course-specialities")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/course-specialities/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/course-specialities/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/course-specialities/**")
+                    .hasRole("ADMIN")
+                    // Everything else
                     .anyRequest()
                     .authenticated())
         .httpBasic(withDefaults());

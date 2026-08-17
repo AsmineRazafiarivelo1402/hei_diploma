@@ -3,7 +3,13 @@ package com.hei.course.entity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "note_history")
 public class JNoteHistory {
