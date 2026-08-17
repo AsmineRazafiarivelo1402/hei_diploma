@@ -19,112 +19,102 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TeachingService {
 
-    private final JTeachingRepository teachingRepository;
-    private final JCourseRepository courseRepository;
-    private final JTeacherRepository teacherRepository;
+  private final JTeachingRepository teachingRepository;
+  private final JCourseRepository courseRepository;
+  private final JTeacherRepository teacherRepository;
 
-    public Teaching create(UUID courseId, UUID teacherId) {
+  public Teaching create(UUID courseId, UUID teacherId) {
 
-        JCourses course =
-                courseRepository
-                        .findById(courseId)
-                        .orElseThrow(
-                                () -> new NotFoundException("Course not found: " + courseId));
+    JCourses course =
+        courseRepository
+            .findById(courseId)
+            .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
 
-        JTeacher teacher =
-                teacherRepository
-                        .findById(teacherId)
-                        .orElseThrow(
-                                () -> new NotFoundException("Teacher not found: " + teacherId));
+    JTeacher teacher =
+        teacherRepository
+            .findById(teacherId)
+            .orElseThrow(() -> new NotFoundException("Teacher not found: " + teacherId));
 
-        if (teachingRepository.existsByCourses_IdAndTeacher_Id(courseId, teacherId)) {
-            throw new ConflictException(
-                    "Teacher " + teacherId + " is already assigned to course " + courseId);
-        }
-
-        JTeaching teaching = new JTeaching();
-        teaching.setCourses(course);
-        teaching.setTeacher(teacher);
-
-        JTeaching savedTeaching = teachingRepository.save(teaching);
-
-        return TeachingMapper.toModel(savedTeaching);
+    if (teachingRepository.existsByCourses_IdAndTeacher_Id(courseId, teacherId)) {
+      throw new ConflictException(
+          "Teacher " + teacherId + " is already assigned to course " + courseId);
     }
 
-    public List<Teaching> findAll() {
-        return teachingRepository.findAll().stream()
-                .map(TeachingMapper::toModel)
-                .toList();
+    JTeaching teaching = new JTeaching();
+    teaching.setCourses(course);
+    teaching.setTeacher(teacher);
+
+    JTeaching savedTeaching = teachingRepository.save(teaching);
+
+    return TeachingMapper.toModel(savedTeaching);
+  }
+
+  public List<Teaching> findAll() {
+    return teachingRepository.findAll().stream().map(TeachingMapper::toModel).toList();
+  }
+
+  public Teaching findById(UUID id) {
+
+    JTeaching teaching =
+        teachingRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Teaching not found: " + id));
+
+    return TeachingMapper.toModel(teaching);
+  }
+
+  public Teaching update(UUID id, UUID courseId, UUID teacherId) {
+
+    JTeaching teaching =
+        teachingRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Teaching not found: " + id));
+
+    JCourses course =
+        courseRepository
+            .findById(courseId)
+            .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
+
+    JTeacher teacher =
+        teacherRepository
+            .findById(teacherId)
+            .orElseThrow(() -> new NotFoundException("Teacher not found: " + teacherId));
+
+    boolean duplicate = teachingRepository.existsByCourses_IdAndTeacher_Id(courseId, teacherId);
+
+    if (duplicate
+        && (!teaching.getCourses().getId().equals(courseId)
+            || !teaching.getTeacher().getId().equals(teacherId))) {
+      throw new ConflictException(
+          "Teacher " + teacherId + " is already assigned to course " + courseId);
     }
 
-    public Teaching findById(UUID id) {
+    teaching.setCourses(course);
+    teaching.setTeacher(teacher);
 
-        JTeaching teaching =
-                teachingRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Teaching not found: " + id));
+    JTeaching updatedTeaching = teachingRepository.save(teaching);
 
-        return TeachingMapper.toModel(teaching);
+    return TeachingMapper.toModel(updatedTeaching);
+  }
+
+  public void delete(UUID id) {
+
+    JTeaching teaching =
+        teachingRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Teaching not found: " + id));
+
+    teachingRepository.delete(teaching);
+  }
+
+  public List<Teaching> findByTeacher(UUID teacherId) {
+
+    if (!teacherRepository.existsById(teacherId)) {
+      throw new NotFoundException("Teacher not found: " + teacherId);
     }
 
-    public Teaching update(UUID id, UUID courseId, UUID teacherId) {
-
-        JTeaching teaching =
-                teachingRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Teaching not found: " + id));
-
-        JCourses course =
-                courseRepository
-                        .findById(courseId)
-                        .orElseThrow(
-                                () -> new NotFoundException("Course not found: " + courseId));
-
-        JTeacher teacher =
-                teacherRepository
-                        .findById(teacherId)
-                        .orElseThrow(
-                                () -> new NotFoundException("Teacher not found: " + teacherId));
-
-        boolean duplicate =
-                teachingRepository.existsByCourses_IdAndTeacher_Id(courseId, teacherId);
-
-        if (duplicate
-                && (!teaching.getCourses().getId().equals(courseId)
-                || !teaching.getTeacher().getId().equals(teacherId))) {
-            throw new ConflictException(
-                    "Teacher " + teacherId + " is already assigned to course " + courseId);
-        }
-
-        teaching.setCourses(course);
-        teaching.setTeacher(teacher);
-
-        JTeaching updatedTeaching = teachingRepository.save(teaching);
-
-        return TeachingMapper.toModel(updatedTeaching);
-    }
-
-    public void delete(UUID id) {
-
-        JTeaching teaching =
-                teachingRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () -> new NotFoundException("Teaching not found: " + id));
-
-        teachingRepository.delete(teaching);
-    }
-
-    public List<Teaching> findByTeacher(UUID teacherId) {
-
-        if (!teacherRepository.existsById(teacherId)) {
-            throw new NotFoundException("Teacher not found: " + teacherId);
-        }
-
-        return teachingRepository.findByTeacher_Id(teacherId).stream()
-                .map(TeachingMapper::toModel)
-                .toList();
-    }
+    return teachingRepository.findByTeacher_Id(teacherId).stream()
+        .map(TeachingMapper::toModel)
+        .toList();
+  }
 }
