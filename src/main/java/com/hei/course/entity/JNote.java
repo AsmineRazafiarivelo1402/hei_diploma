@@ -36,7 +36,6 @@ public class JNote {
   @JoinColumn(name = "student_id", nullable = false)
   private JStudent student;
 
-
   @Builder.Default
   @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<JNoteHistory> noteHistoryList = new ArrayList<>();
