@@ -4,6 +4,7 @@ import com.hei.course.entity.JAdmin;
 import com.hei.course.entity.JStudent;
 import com.hei.course.entity.JTeacher;
 import com.hei.course.entity.JUsers;
+import com.hei.course.exception.ConflictException;
 import com.hei.course.mapper.UserMapper;
 import com.hei.course.model.RoleEnum;
 import com.hei.course.model.Users;
@@ -29,7 +30,9 @@ public class UserService {
       String rawPassword,
       String address,
       String phoneNumber) {
+
     JStudent entity = new JStudent();
+
     return saveUser(
         entity,
         reference,
@@ -52,7 +55,9 @@ public class UserService {
       String rawPassword,
       String address,
       String phoneNumber) {
+
     JTeacher entity = new JTeacher();
+
     return saveUser(
         entity,
         reference,
@@ -75,7 +80,9 @@ public class UserService {
       String rawPassword,
       String address,
       String phoneNumber) {
+
     JAdmin entity = new JAdmin();
+
     return saveUser(
         entity,
         reference,
@@ -100,12 +107,21 @@ public class UserService {
       String address,
       String phoneNumber,
       RoleEnum role) {
+
+    if (usersRepository.existsByEmail(email)) {
+      throw new ConflictException("Email already exists: " + email);
+    }
+
+    if (usersRepository.existsByReference(reference)) {
+      throw new ConflictException("Reference already exists: " + reference);
+    }
+
     entity.setReference(reference);
     entity.setFirstName(firstName);
     entity.setLastName(lastName);
     entity.setBirthdate(birthdate);
     entity.setEmail(email);
-    entity.setPassword(passwordEncoder.encode(rawPassword)); // jamais en clair
+    entity.setPassword(passwordEncoder.encode(rawPassword));
     entity.setAddress(address);
     entity.setPhoneNumber(phoneNumber);
     entity.setRole(role);
