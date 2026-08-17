@@ -141,7 +141,14 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/semesters/**")
                     .hasRole("ADMIN")
-
+                    .requestMatchers(HttpMethod.POST, "/affectations")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/affectations/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/affectations/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/affectations/**")
+                    .hasRole("ADMIN")
                     // Everything else
                     .anyRequest()
                     .authenticated())
