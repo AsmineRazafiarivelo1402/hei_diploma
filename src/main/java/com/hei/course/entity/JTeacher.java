@@ -18,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("TEACHER")
 public class JTeacher extends JUsers {
 
+  @Builder.Default
   @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = false)
   private List<JTeaching> teachingList = new ArrayList<>();
 }
