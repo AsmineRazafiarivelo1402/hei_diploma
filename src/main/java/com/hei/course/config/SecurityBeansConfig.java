@@ -2,6 +2,7 @@ package com.hei.course.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -21,32 +23,26 @@ public class SecurityBeansConfig {
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public AuthenticationEntryPoint authenticationEntryPoint() {
+    return (request, response, authException) -> {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType("application/json");
+      response
+          .getWriter()
+          .write(
+              "{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Authentication"
+                  + " required\"}");
+    };
+  }
+
+  @Bean
+  public SecurityFilterChain filterChain(
+      HttpSecurity http, AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
 
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(
-                        HttpMethod.GET,
-                        "/ping",
-                        "/morning",
-                        "/courses/bonjour",
-                        "/users/**",
-                        "/students/**",
-                        "/teachers/**",
-                        "/groups/**",
-                        "/courses/**",
-                        "/exams/**",
-                        "/notes/**",
-                        "/note-histories/**",
-                        "/promotions/**",
-                        "/semesters/**",
-                        "/affectations/**",
-                        "/group-exams/**",
-                        "/course-specialities/**",
-                        "/teachings/**",
-                        "/diplomas",
-                        "/releves/**")
+                auth.requestMatchers(HttpMethod.GET, "/ping", "/morning", "/courses/bonjour")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/users")
                     .hasRole("ADMIN")
@@ -96,6 +92,14 @@ public class SecurityBeansConfig {
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/note-histories/**")
                     .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/diplomas")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/releves/{studentId}")
+                    .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
+                    .requestMatchers(HttpMethod.POST, "/releves/{studentId}/email")
+                    .hasAnyRole("TEACHER", "ADMIN", "STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/releves/me/**")
+                    .hasRole("STUDENT")
                     .requestMatchers(HttpMethod.POST, "/promotions")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/promotions/**")
@@ -126,14 +130,10 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/course-specialities/**")
                     .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/teachings")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/teachings/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/teachings/**")
-                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
+        .exceptionHandling(
+            exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
         .httpBasic(withDefaults());
 
     return http.build();
