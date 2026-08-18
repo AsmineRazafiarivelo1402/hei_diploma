@@ -2,6 +2,7 @@ package com.hei.course.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -21,7 +23,21 @@ public class SecurityBeansConfig {
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public AuthenticationEntryPoint authenticationEntryPoint() {
+    return (request, response, authException) -> {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType("application/json");
+      response
+          .getWriter()
+          .write(
+              "{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Authentication"
+                  + " required\"}");
+    };
+  }
+
+  @Bean
+  public SecurityFilterChain filterChain(
+      HttpSecurity http, AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
 
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
@@ -30,11 +46,15 @@ public class SecurityBeansConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/users")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/users/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/users/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/users/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/students")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/students/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/students/**")
                     .hasRole("ADMIN")
@@ -42,11 +62,15 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/teachers")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/teachers/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/teachers/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/teachers/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/groups")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/groups/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/groups/**")
                     .hasRole("ADMIN")
@@ -54,11 +78,15 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/courses")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/courses/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/courses/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/exams")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/exams/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/exams/**")
                     .hasRole("ADMIN")
@@ -66,11 +94,15 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/notes")
                     .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/notes/**")
+                    .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/notes/**")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/notes/**")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.POST, "/note-histories")
+                    .hasAnyRole("TEACHER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/note-histories/**")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/note-histories/**")
                     .hasAnyRole("TEACHER", "ADMIN")
@@ -86,11 +118,17 @@ public class SecurityBeansConfig {
                     .hasRole("STUDENT")
                     .requestMatchers(HttpMethod.POST, "/promotions")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/promotions/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/promotions/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/promotions/**")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/promotions/view")
+                    .authenticated()
                     .requestMatchers(HttpMethod.POST, "/semesters")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/semesters/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/semesters/**")
                     .hasRole("ADMIN")
@@ -98,11 +136,15 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/affectations")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/affectations/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/affectations/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/affectations/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/group-exams")
+                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/group-exams/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/group-exams/**")
                     .hasRole("ADMIN")
@@ -110,12 +152,16 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/course-specialities")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/course-specialities/**")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/course-specialities/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/course-specialities/**")
                     .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
+        .exceptionHandling(
+            exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
         .httpBasic(withDefaults());
 
     return http.build();
