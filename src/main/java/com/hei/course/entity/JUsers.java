@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,6 +46,7 @@ public abstract class JUsers {
   private String phoneNumber;
 
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "role", nullable = false)
   private RoleEnum role;
 
