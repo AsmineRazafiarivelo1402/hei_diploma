@@ -21,6 +21,11 @@ public class CourseController {
     return ResponseEntity.status(HttpStatus.CREATED).body(courseService.create(course));
   }
 
+  @GetMapping("/bonjour")
+  public String bonjour() {
+    return "Bonjour à tous";
+  }
+
   @GetMapping
   public ResponseEntity<List<Courses>> findAll() {
     return ResponseEntity.ok(courseService.findAll());
