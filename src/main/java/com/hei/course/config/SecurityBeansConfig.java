@@ -27,7 +27,7 @@ public class SecurityBeansConfig {
             auth ->
                 auth
                     // Public
-                    .requestMatchers(HttpMethod.GET, "/ping")
+                    .requestMatchers(HttpMethod.GET, "/ping", "/morning")
                     .permitAll()
 
                     // Users
