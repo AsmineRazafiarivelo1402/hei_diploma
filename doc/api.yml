@@ -1,23 +1,78 @@
 openapi: 3.0.3
 info:
-  title: HEI Diploma - User Management API
-  description: API for creating and managing users (students, teachers, administrators) in the HEI Diploma application.
+  title: HEI Diploma API
+  description: API complète pour la gestion du diplôme HEI, incluant les utilisateurs, cours, groupes, examens, notes et affectations.
   version: "1.0.0"
+  contact:
+    name: Support HEI Diploma
+    email: support@hei-diploma.com
 
 servers:
   - url: https://api.hei-diploma.example.com
-    description: Main server
+    description: Serveur de production
+  - url: http://localhost:8080
+    description: Serveur de développement local
 
 tags:
   - name: Users
-    description: User creation and management
+    description: Gestion des utilisateurs (création)
+  - name: Students
+    description: Opérations sur les étudiants
+  - name: Teachers
+    description: Opérations sur les enseignants
+  - name: Courses
+    description: Gestion des cours
+  - name: Promotions
+    description: Gestion des promotions
+  - name: Semesters
+    description: Gestion des semestres
+  - name: Groups
+    description: Gestion des groupes
+  - name: Exams
+    description: Gestion des examens
+  - name: Notes
+    description: Gestion des notes
+  - name: Note Histories
+    description: Historique des modifications des notes
+  - name: Teachings
+    description: Association entre cours et enseignants
+  - name: Course Specialities
+    description: Spécialités associées aux cours
+  - name: Affectations
+    description: Affectation des étudiants aux groupes
+  - name: Group Exams
+    description: Association entre groupes et examens
 
 paths:
+  /users:
+    post:
+      tags: [Users]
+      summary: Créer un administrateur
+      description: Crée un nouvel administrateur.
+      operationId: createAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminRequest'
+      responses:
+        '201':
+          description: Administrateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
   /api/students:
     post:
       tags: [Users]
-      summary: Create a student
-      operationId: createStudent
+      summary: Créer un étudiant
+      operationId: createStudentLegacy
       requestBody:
         required: true
         content:
@@ -26,7 +81,7 @@ paths:
               $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '201':
-          description: Student successfully created
+          description: Étudiant créé avec succès
           content:
             application/json:
               schema:
@@ -39,8 +94,8 @@ paths:
   /api/teachers:
     post:
       tags: [Users]
-      summary: Create a teacher
-      operationId: createTeacher
+      summary: Créer un enseignant
+      operationId: createTeacherLegacy
       requestBody:
         required: true
         content:
@@ -49,7 +104,7 @@ paths:
               $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '201':
-          description: Teacher successfully created
+          description: Enseignant créé avec succès
           content:
             application/json:
               schema:
@@ -62,8 +117,8 @@ paths:
   /api/admins:
     post:
       tags: [Users]
-      summary: Create an administrator
-      operationId: createAdmin
+      summary: Créer un administrateur
+      operationId: createAdminLegacy
       security:
         - bearerAuth: [ADMIN]
       requestBody:
@@ -74,7 +129,7 @@ paths:
               $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '201':
-          description: Administrator successfully created
+          description: Administrateur créé avec succès
           content:
             application/json:
               schema:
@@ -82,11 +137,1487 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
-          description: Not authenticated
+          description: Non authentifié
         '403':
-          description: Access denied (insufficient role)
+          description: Accès refusé (rôle insuffisant)
         '409':
           $ref: '#/components/responses/Conflict'
+
+  /students:
+    post:
+      tags: [Students]
+      summary: Créer un étudiant
+      operationId: createStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: Étudiant créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Students]
+      summary: Récupérer tous les étudiants
+      operationId: getAllStudents
+      responses:
+        '200':
+          description: Liste de tous les étudiants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+  /students/{id}:
+    get:
+      tags: [Students]
+      summary: Récupérer un étudiant par son ID
+      operationId: getStudentById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'étudiant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Étudiant non trouvé
+    put:
+      tags: [Students]
+      summary: Mettre à jour un étudiant
+      operationId: updateStudent
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Étudiant mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Étudiant non trouvé
+    delete:
+      tags: [Students]
+      summary: Supprimer un étudiant
+      operationId: deleteStudent
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Étudiant supprimé avec succès
+        '404':
+          description: Étudiant non trouvé
+
+  /teachers:
+    post:
+      tags: [Teachers]
+      summary: Créer un enseignant
+      operationId: createTeacher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '201':
+          description: Enseignant créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Teachers]
+      summary: Récupérer tous les enseignants
+      operationId: getAllTeachers
+      responses:
+        '200':
+          description: Liste de tous les enseignants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+  /teachers/{id}:
+    get:
+      tags: [Teachers]
+      summary: Récupérer un enseignant par son ID
+      operationId: getTeacherById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'enseignant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '404':
+          description: Enseignant non trouvé
+    put:
+      tags: [Teachers]
+      summary: Mettre à jour un enseignant
+      operationId: updateTeacher
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '200':
+          description: Enseignant mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Enseignant non trouvé
+    delete:
+      tags: [Teachers]
+      summary: Supprimer un enseignant
+      operationId: deleteTeacher
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Enseignant supprimé avec succès
+        '404':
+          description: Enseignant non trouvé
+
+  /courses:
+    post:
+      tags: [Courses]
+      summary: Créer un cours
+      operationId: createCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: Cours créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Courses]
+      summary: Récupérer tous les cours
+      operationId: getAllCourses
+      responses:
+        '200':
+          description: Liste de tous les cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /courses/{id}:
+    get:
+      tags: [Courses]
+      summary: Récupérer un cours par son ID
+      operationId: getCourseById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails du cours
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404':
+          description: Cours non trouvé
+    put:
+      tags: [Courses]
+      summary: Mettre à jour un cours
+      operationId: updateCourse
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '200':
+          description: Cours mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Cours non trouvé
+    delete:
+      tags: [Courses]
+      summary: Supprimer un cours
+      operationId: deleteCourse
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Cours supprimé avec succès
+        '404':
+          description: Cours non trouvé
+
+  /promotions:
+    post:
+      tags: [Promotions]
+      summary: Créer une promotion
+      operationId: createPromotion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '201':
+          description: Promotion créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Promotions]
+      summary: Récupérer toutes les promotions
+      operationId: getAllPromotions
+      responses:
+        '200':
+          description: Liste de toutes les promotions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promotion'
+
+  /promotions/{id}:
+    get:
+      tags: [Promotions]
+      summary: Récupérer une promotion par son ID
+      operationId: getPromotionById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de la promotion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '404':
+          description: Promotion non trouvée
+    put:
+      tags: [Promotions]
+      summary: Mettre à jour une promotion
+      operationId: updatePromotion
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '200':
+          description: Promotion mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Promotion non trouvée
+    delete:
+      tags: [Promotions]
+      summary: Supprimer une promotion
+      operationId: deletePromotion
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Promotion supprimée avec succès
+        '404':
+          description: Promotion non trouvée
+
+  /semesters:
+    post:
+      tags: [Semesters]
+      summary: Créer un semestre
+      operationId: createSemester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Semester'
+      responses:
+        '201':
+          description: Semestre créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Semesters]
+      summary: Récupérer tous les semestres
+      operationId: getAllSemesters
+      responses:
+        '200':
+          description: Liste de tous les semestres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Semester'
+
+  /semesters/{id}:
+    get:
+      tags: [Semesters]
+      summary: Récupérer un semestre par son ID
+      operationId: getSemesterById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails du semestre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+        '404':
+          description: Semestre non trouvé
+    put:
+      tags: [Semesters]
+      summary: Mettre à jour un semestre
+      operationId: updateSemester
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Semester'
+      responses:
+        '200':
+          description: Semestre mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Semester'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Semestre non trouvé
+    delete:
+      tags: [Semesters]
+      summary: Supprimer un semestre
+      operationId: deleteSemester
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Semestre supprimé avec succès
+        '404':
+          description: Semestre non trouvé
+
+  /groups:
+    post:
+      tags: [Groups]
+      summary: Créer un groupe
+      operationId: createGroup
+      parameters:
+        - name: promotionId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la promotion à laquelle le groupe appartient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '201':
+          description: Groupe créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Groups]
+      summary: Récupérer tous les groupes
+      operationId: getAllGroups
+      responses:
+        '200':
+          description: Liste de tous les groupes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  /groups/{id}:
+    get:
+      tags: [Groups]
+      summary: Récupérer un groupe par son ID
+      operationId: getGroupById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails du groupe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '404':
+          description: Groupe non trouvé
+    put:
+      tags: [Groups]
+      summary: Mettre à jour un groupe
+      operationId: updateGroup
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: promotionId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la nouvelle promotion pour le groupe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '200':
+          description: Groupe mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Groupe non trouvé
+    delete:
+      tags: [Groups]
+      summary: Supprimer un groupe
+      operationId: deleteGroup
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Groupe supprimé avec succès
+        '404':
+          description: Groupe non trouvé
+
+  /exams:
+    post:
+      tags: [Exams]
+      summary: Créer un examen
+      operationId: createExam
+      parameters:
+        - name: courseId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du cours associé à l'examen
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du semestre de l'examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '201':
+          description: Examen créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Exams]
+      summary: Récupérer tous les examens
+      operationId: getAllExams
+      responses:
+        '200':
+          description: Liste de tous les examens
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+
+  /exams/{id}:
+    get:
+      tags: [Exams]
+      summary: Récupérer un examen par son ID
+      operationId: getExamById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'examen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '404':
+          description: Examen non trouvé
+    put:
+      tags: [Exams]
+      summary: Mettre à jour un examen
+      operationId: updateExam
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: courseId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau cours pour l'examen
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau semestre pour l'examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '200':
+          description: Examen mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Examen non trouvé
+    delete:
+      tags: [Exams]
+      summary: Supprimer un examen
+      operationId: deleteExam
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Examen supprimé avec succès
+        '404':
+          description: Examen non trouvé
+
+  /notes:
+    post:
+      tags: [Notes]
+      summary: Créer une note
+      operationId: createNote
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: examId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'examen lié à la note
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'étudiant qui a reçu la note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      responses:
+        '201':
+          description: Note créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Non authentifié
+    get:
+      tags: [Notes]
+      summary: Récupérer toutes les notes (selon les droits de l'utilisateur)
+      operationId: getAllNotes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des notes accessibles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        '401':
+          description: Non authentifié
+
+  /notes/{id}:
+    get:
+      tags: [Notes]
+      summary: Récupérer une note par son ID
+      operationId: getNoteById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de la note
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '401':
+          description: Non authentifié
+        '404':
+          description: Note non trouvée ou accès non autorisé
+    put:
+      tags: [Notes]
+      summary: Mettre à jour une note
+      operationId: updateNote
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: examId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouvel examen pour la note
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouvel étudiant pour la note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      responses:
+        '200':
+          description: Note mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Non authentifié
+        '404':
+          description: Note non trouvée ou accès non autorisé
+    delete:
+      tags: [Notes]
+      summary: Supprimer une note
+      operationId: deleteNote
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Note supprimée avec succès
+        '401':
+          description: Non authentifié
+        '404':
+          description: Note non trouvée ou accès non autorisé
+
+  /note-histories:
+    post:
+      tags: [Note Histories]
+      summary: Créer un enregistrement d'historique pour une note
+      operationId: createNoteHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: noteId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la note dont on enregistre l'historique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteHistory'
+      responses:
+        '201':
+          description: Historique créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteHistory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Non authentifié
+    get:
+      tags: [Note Histories]
+      summary: Récupérer tous les historiques de notes
+      operationId: getAllNoteHistories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des historiques accessibles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NoteHistory'
+        '401':
+          description: Non authentifié
+
+  /note-histories/{id}:
+    get:
+      tags: [Note Histories]
+      summary: Récupérer un historique par son ID
+      operationId: getNoteHistoryById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'historique
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteHistory'
+        '401':
+          description: Non authentifié
+        '404':
+          description: Historique non trouvé ou accès non autorisé
+    put:
+      tags: [Note Histories]
+      summary: Mettre à jour un enregistrement d'historique
+      operationId: updateNoteHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: noteId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la nouvelle note pour cet historique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteHistory'
+      responses:
+        '200':
+          description: Historique mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteHistory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Non authentifié
+        '404':
+          description: Historique non trouvé ou accès non autorisé
+    delete:
+      tags: [Note Histories]
+      summary: Supprimer un enregistrement d'historique
+      operationId: deleteNoteHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Historique supprimé avec succès
+        '401':
+          description: Non authentifié
+        '404':
+          description: Historique non trouvé ou accès non autorisé
+
+  /teachings:
+    post:
+      tags: [Teachings]
+      summary: Créer une association cours-enseignant
+      operationId: createTeaching
+      parameters:
+        - name: courseId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du cours
+        - name: teacherId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'enseignant
+      responses:
+        '201':
+          description: Association créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teaching'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Teachings]
+      summary: Récupérer toutes les associations
+      operationId: getAllTeachings
+      responses:
+        '200':
+          description: Liste de toutes les associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teaching'
+
+  /teachings/{id}:
+    get:
+      tags: [Teachings]
+      summary: Récupérer une association par son ID
+      operationId: getTeachingById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teaching'
+        '404':
+          description: Association non trouvée
+    put:
+      tags: [Teachings]
+      summary: Mettre à jour une association
+      operationId: updateTeaching
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: courseId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau cours
+        - name: teacherId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouvel enseignant
+      responses:
+        '200':
+          description: Association mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teaching'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Association non trouvée
+    delete:
+      tags: [Teachings]
+      summary: Supprimer une association
+      operationId: deleteTeaching
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Association supprimée avec succès
+        '404':
+          description: Association non trouvée
+
+  /teachings/teacher/{teacherId}:
+    get:
+      tags: [Teachings]
+      summary: Récupérer tous les enseignements d'un enseignant
+      operationId: getTeachingsByTeacher
+      parameters:
+        - name: teacherId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'enseignant
+      responses:
+        '200':
+          description: Liste des enseignements de l'enseignant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teaching'
+        '404':
+          description: Enseignant non trouvé
+
+  /course-specialities:
+    post:
+      tags: [Course Specialities]
+      summary: Créer une spécialité pour un cours
+      operationId: createCourseSpeciality
+      parameters:
+        - name: coursesId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du cours
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du semestre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseSpeciality'
+      responses:
+        '201':
+          description: Spécialité créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSpeciality'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Course Specialities]
+      summary: Récupérer toutes les spécialités de cours
+      operationId: getAllCourseSpecialities
+      responses:
+        '200':
+          description: Liste de toutes les spécialités
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSpeciality'
+
+  /course-specialities/{id}:
+    get:
+      tags: [Course Specialities]
+      summary: Récupérer une spécialité par son ID
+      operationId: getCourseSpecialityById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de la spécialité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSpeciality'
+        '404':
+          description: Spécialité non trouvée
+    put:
+      tags: [Course Specialities]
+      summary: Mettre à jour une spécialité
+      operationId: updateCourseSpeciality
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: coursesId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau cours
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau semestre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseSpeciality'
+      responses:
+        '200':
+          description: Spécialité mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSpeciality'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Spécialité non trouvée
+    delete:
+      tags: [Course Specialities]
+      summary: Supprimer une spécialité
+      operationId: deleteCourseSpeciality
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Spécialité supprimée avec succès
+        '404':
+          description: Spécialité non trouvée
+
+  /course-specialities/course/{coursesId}:
+    get:
+      tags: [Course Specialities]
+      summary: Récupérer toutes les spécialités d'un cours
+      operationId: getCourseSpecialitiesByCourse
+      parameters:
+        - name: coursesId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du cours
+      responses:
+        '200':
+          description: Liste des spécialités du cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSpeciality'
+        '404':
+          description: Cours non trouvé
+
+  /affectations:
+    post:
+      tags: [Affectations]
+      summary: Créer une affectation
+      operationId: createAffectation
+      parameters:
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'étudiant
+        - name: groupId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du groupe
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du semestre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Affectation'
+      responses:
+        '201':
+          description: Affectation créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Affectation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Affectations]
+      summary: Récupérer toutes les affectations
+      operationId: getAllAffectations
+      responses:
+        '200':
+          description: Liste de toutes les affectations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Affectation'
+
+  /affectations/{id}:
+    get:
+      tags: [Affectations]
+      summary: Récupérer une affectation par son ID
+      operationId: getAffectationById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'affectation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Affectation'
+        '404':
+          description: Affectation non trouvée
+    put:
+      tags: [Affectations]
+      summary: Mettre à jour une affectation
+      operationId: updateAffectation
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: studentId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouvel étudiant
+        - name: groupId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau groupe
+        - name: semesterId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau semestre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Affectation'
+      responses:
+        '200':
+          description: Affectation mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Affectation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Affectation non trouvée
+    delete:
+      tags: [Affectations]
+      summary: Supprimer une affectation
+      operationId: deleteAffectation
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Affectation supprimée avec succès
+        '404':
+          description: Affectation non trouvée
+
+  /affectations/student/{studentId}:
+    get:
+      tags: [Affectations]
+      summary: Récupérer toutes les affectations d'un étudiant
+      operationId: getAffectationsByStudent
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'étudiant
+      responses:
+        '200':
+          description: Liste des affectations de l'étudiant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Affectation'
+        '404':
+          description: Étudiant non trouvé
+
+  /affectations/promotion/{promotionId}:
+    get:
+      tags: [Affectations]
+      summary: Récupérer toutes les affectations d'une promotion
+      operationId: getAffectationsByPromotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la promotion
+      responses:
+        '200':
+          description: Liste des affectations de la promotion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Affectation'
+        '404':
+          description: Promotion non trouvée
+
+  /group-exams:
+    post:
+      tags: [Group Exams]
+      summary: Créer une association groupe-examen
+      operationId: createGroupExam
+      parameters:
+        - name: groupId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du groupe
+        - name: examId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de l'examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupExam'
+      responses:
+        '201':
+          description: Association créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Group Exams]
+      summary: Récupérer toutes les associations groupe-examen
+      operationId: getAllGroupExams
+      responses:
+        '200':
+          description: Liste de toutes les associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupExam'
+
+  /group-exams/{id}:
+    get:
+      tags: [Group Exams]
+      summary: Récupérer une association par son ID
+      operationId: getGroupExamById
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '200':
+          description: Détails de l'association
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+        '404':
+          description: Association non trouvée
+    put:
+      tags: [Group Exams]
+      summary: Mettre à jour une association
+      operationId: updateGroupExam
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+        - name: groupId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouveau groupe
+        - name: examId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du nouvel examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupExam'
+      responses:
+        '200':
+          description: Association mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Association non trouvée
+    delete:
+      tags: [Group Exams]
+      summary: Supprimer une association
+      operationId: deleteGroupExam
+      parameters:
+        - $ref: '#/components/parameters/UuidPath'
+      responses:
+        '204':
+          description: Association supprimée avec succès
+        '404':
+          description: Association non trouvée
+
+  /group-exams/group/{groupId}:
+    get:
+      tags: [Group Exams]
+      summary: Récupérer tous les examens d'un groupe
+      operationId: getGroupExamsByGroup
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du groupe
+      responses:
+        '200':
+          description: Liste des examens du groupe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupExam'
+        '404':
+          description: Groupe non trouvé
 
 components:
   securitySchemes:
@@ -94,6 +1625,16 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  parameters:
+    UuidPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique au format UUID
 
   schemas:
     CreateUserRequest:
@@ -108,7 +1649,7 @@ components:
       properties:
         reference:
           type: string
-          description: Functional reference/identifier of the user
+          description: Référence fonctionnelle de l'utilisateur
           example: "STU-2026-0001"
         firstName:
           type: string
@@ -128,7 +1669,7 @@ components:
           type: string
           format: password
           minLength: 8
-          description: Plain-text password provided by the client; hashed server-side before storage and never persisted or returned in clear text.
+          description: Mot de passe en clair fourni par le client
           example: "S3curePassword!"
         address:
           type: string
@@ -136,6 +1677,45 @@ components:
         phoneNumber:
           type: string
           example: "+261340000000"
+
+    CreateAdminRequest:
+      type: object
+      required:
+        - reference
+        - firstName
+        - lastName
+        - birthdate
+        - email
+        - password
+      properties:
+        reference:
+          type: string
+          example: "ADM-2026-0001"
+        firstName:
+          type: string
+          example: "Admin"
+        lastName:
+          type: string
+          example: "User"
+        birthdate:
+          type: string
+          format: date-time
+          example: "1980-01-01T00:00:00Z"
+        email:
+          type: string
+          format: email
+          example: "admin@hei.mg"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: "AdminSecure123!"
+        address:
+          type: string
+          example: "456 Admin Street"
+        phoneNumber:
+          type: string
+          example: "+261330000000"
 
     UserResponse:
       type: object
@@ -158,7 +1738,7 @@ components:
         role:
           type: string
           enum: [STUDENT, TEACHER, ADMIN]
-      description: The password (hashed or plain) is never returned in the response.
+      description: Le mot de passe n'est jamais retourné dans la réponse
 
     ErrorResponse:
       type: object
@@ -174,20 +1754,279 @@ components:
           example: "Bad Request"
         message:
           type: string
-          example: "Field 'email' is required."
+          example: "Le champ 'email' est requis."
         path:
           type: string
           example: "/api/students"
 
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant unique de l'étudiant
+        reference:
+          type: string
+          description: Référence fonctionnelle
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date-time
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        userId:
+          type: string
+          format: uuid
+          description: ID de l'utilisateur associé
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date-time
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        userId:
+          type: string
+          format: uuid
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          example: "CS101"
+        name:
+          type: string
+          example: "Introduction à l'informatique"
+        credits:
+          type: integer
+          example: 3
+        description:
+          type: string
+
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Promotion 2026"
+        year:
+          type: integer
+          example: 2026
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    Semester:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Semestre 1"
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        promotionId:
+          type: string
+          format: uuid
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Groupe A"
+        promotionId:
+          type: string
+          format: uuid
+
+    Exam:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Examen final"
+        coefficient:
+          type: number
+          format: float
+          example: 1.5
+        date:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Durée en minutes
+          example: 120
+        courseId:
+          type: string
+          format: uuid
+        semesterId:
+          type: string
+          format: uuid
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        value:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 20
+          example: 15.5
+        examId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NoteHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        noteId:
+          type: string
+          format: uuid
+        oldValue:
+          type: number
+          format: float
+        newValue:
+          type: number
+          format: float
+        modifiedBy:
+          type: string
+          format: uuid
+          description: ID de l'utilisateur qui a modifié
+        modifiedAt:
+          type: string
+          format: date-time
+
+    Teaching:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        courseId:
+          type: string
+          format: uuid
+        teacherId:
+          type: string
+          format: uuid
+
+    CourseSpeciality:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Spécialité IA"
+        description:
+          type: string
+        coursesId:
+          type: string
+          format: uuid
+        semesterId:
+          type: string
+          format: uuid
+
+    Affectation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        groupId:
+          type: string
+          format: uuid
+        semesterId:
+          type: string
+          format: uuid
+
+    GroupExam:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        groupId:
+          type: string
+          format: uuid
+        examId:
+          type: string
+          format: uuid
+
   responses:
     BadRequest:
-      description: Invalid request (missing or malformed field)
+      description: Requête invalide (champ manquant ou mal formaté)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
     Conflict:
-      description: A user with this reference or email already exists
+      description: Un utilisateur avec cette référence ou cet email existe déjà
       content:
         application/json:
           schema:
