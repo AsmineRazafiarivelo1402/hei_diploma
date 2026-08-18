@@ -21,6 +21,7 @@ public class PromotionViewController {
             .toList();
 
     model.addAttribute("promotions", promotions);
-    return "promotions";
+
+    return "promotion";
   }
 }
