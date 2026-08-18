@@ -1,4 +1,4 @@
-package com.hei.course.endpoint.rest.controller.crud;
+package com.hei.course.controller;
 
 import com.hei.course.model.Courses;
 import com.hei.course.service.crud.CourseService;
