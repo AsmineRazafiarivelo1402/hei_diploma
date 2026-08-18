@@ -49,7 +49,7 @@ public class SecurityBeansConfig {
                         "/releves/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/users")
-                    .hasRole("ADMIN")
+                    .permitAll()
                     .requestMatchers(HttpMethod.PUT, "/users/**")
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/users/**")
