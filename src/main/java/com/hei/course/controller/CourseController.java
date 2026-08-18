@@ -22,9 +22,10 @@ public class CourseController {
   }
 
   @GetMapping("/bonjour")
-  public String bonjour(){
+  public String bonjour() {
     return "Bonjour à tous";
   }
+
   @GetMapping
   public ResponseEntity<List<Courses>> findAll() {
     return ResponseEntity.ok(courseService.findAll());
