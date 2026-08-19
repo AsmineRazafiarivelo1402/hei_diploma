@@ -1,6 +1,7 @@
 package com.hei.course.service.crud;
 
 import com.hei.course.entity.JStudent;
+import com.hei.course.exception.ConflictException;
 import com.hei.course.exception.NotFoundException;
 import com.hei.course.mapper.StudentMapper;
 import com.hei.course.model.RoleEnum;
@@ -20,6 +21,15 @@ public class StudentService {
   private final PasswordEncoder passwordEncoder;
 
   public Student create(Student student) {
+
+    if (studentRepository.existsByEmail(student.getEmail())) {
+      throw new ConflictException("Email already exists: " + student.getEmail());
+    }
+
+    if (studentRepository.existsByReference(student.getReference())) {
+      throw new ConflictException("Reference already exists: " + student.getReference());
+    }
+
     JStudent entity = new JStudent();
 
     entity.setReference(student.getReference());
@@ -55,6 +65,16 @@ public class StudentService {
         studentRepository
             .findById(id)
             .orElseThrow(() -> new NotFoundException("Student not found with id: " + id));
+
+    if (!entity.getEmail().equals(student.getEmail())
+        && studentRepository.existsByEmail(student.getEmail())) {
+      throw new ConflictException("Email already exists: " + student.getEmail());
+    }
+
+    if (!entity.getReference().equals(student.getReference())
+        && studentRepository.existsByReference(student.getReference())) {
+      throw new ConflictException("Reference already exists: " + student.getReference());
+    }
 
     entity.setReference(student.getReference());
     entity.setFirstName(student.getFirstName());
