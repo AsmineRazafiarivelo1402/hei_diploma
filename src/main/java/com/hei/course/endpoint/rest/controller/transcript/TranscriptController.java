@@ -3,9 +3,9 @@ package com.hei.course.endpoint.rest.controller.transcript;
 import com.hei.course.endpoint.event.EventProducer;
 import com.hei.course.endpoint.event.model.TranscriptEmailRequested;
 import com.hei.course.entity.JStudent;
-import com.hei.course.repository.JNoteRepository;
 import com.hei.course.repository.JStudentRepository;
 import com.hei.course.security.UserPrincipal;
+import com.hei.course.service.transcript.TranscriptComputationService;
 import com.hei.course.service.transcript.TranscriptPdfWriter;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class TranscriptController {
 
   private final EventProducer<TranscriptEmailRequested> eventProducer;
   private final JStudentRepository studentRepository;
-  private final JNoteRepository noteRepository;
+  private final TranscriptComputationService transcriptComputationService;
   private final TranscriptPdfWriter transcriptPdfWriter;
 
   @PostMapping("/releves/{studentId}/email")
@@ -56,8 +56,8 @@ public class TranscriptController {
             .findById(studentId)
             .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
 
-    var notes = noteRepository.findByStudent_Id(studentId);
-    File pdfFile = transcriptPdfWriter.toPdf(student, notes);
+    var transcript = transcriptComputationService.computeFor(studentId);
+    File pdfFile = transcriptPdfWriter.toPdf(student, transcript);
 
     byte[] pdfBytes = readFile(pdfFile);
 

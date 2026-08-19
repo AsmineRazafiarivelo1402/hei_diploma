@@ -22,8 +22,8 @@
         <td th:text="${promotion.groupList.size()}">0</td>
         <td>
             <a sec:authorize="hasRole('ADMIN')"
-               th:href="@{/diplomas(promotionId=${promotion.id})}">
-                Télécharger la liste des diplômés
+               th:href="@{/diplomas/view(promotionId=${promotion.id})}">
+                Voir les diplômés
             </a>
             <span sec:authorize="!hasRole('ADMIN')">-</span>
         </td>

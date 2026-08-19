@@ -12,9 +12,10 @@ import com.hei.course.entity.JStudent;
 import com.hei.course.file.bucket.BucketComponent;
 import com.hei.course.mail.Email;
 import com.hei.course.mail.Mailer;
-import com.hei.course.repository.JNoteRepository;
 import com.hei.course.repository.JStudentRepository;
+import com.hei.course.service.transcript.TranscriptData.Transcript;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TranscriptServiceTest {
 
   @Mock private JStudentRepository studentRepository;
-  @Mock private JNoteRepository noteRepository;
+  @Mock private TranscriptComputationService transcriptComputationService;
   @Mock private TranscriptPdfWriter transcriptPdfWriter;
   @Mock private BucketComponent bucketComponent;
   @Mock private Mailer mailer;
@@ -39,7 +40,11 @@ class TranscriptServiceTest {
   void setUp() {
     service =
         new TranscriptService(
-            studentRepository, noteRepository, transcriptPdfWriter, bucketComponent, mailer);
+            studentRepository,
+            transcriptComputationService,
+            transcriptPdfWriter,
+            bucketComponent,
+            mailer);
   }
 
   @Test
@@ -51,12 +56,14 @@ class TranscriptServiceTest {
     student.setLastName("Rakoto");
     student.setEmail("fenitra@example.com");
 
+    Transcript transcript = new Transcript(List.of(), 0, BigDecimal.ZERO);
+
     File pdfFile = File.createTempFile("releve-test", ".pdf");
     pdfFile.deleteOnExit();
 
     when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
-    when(noteRepository.findByStudent_Id(studentId)).thenReturn(List.of());
-    when(transcriptPdfWriter.toPdf(student, List.of())).thenReturn(pdfFile);
+    when(transcriptComputationService.computeFor(studentId)).thenReturn(transcript);
+    when(transcriptPdfWriter.toPdf(student, transcript)).thenReturn(pdfFile);
 
     service.sendTranscriptByEmail(studentId);
 
