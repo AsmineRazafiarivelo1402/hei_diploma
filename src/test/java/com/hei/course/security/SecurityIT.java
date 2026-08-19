@@ -56,7 +56,6 @@ class SecurityIT extends FacadeIT {
     return user;
   }
 
-
   @Test
   void unknown_email_is_rejected_with_401() {
     var response =
@@ -87,7 +86,6 @@ class SecurityIT extends FacadeIT {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 
-
   @Test
   void ping_is_public_and_does_not_require_authentication() {
     var response = restTemplate.getForEntity("/ping", String.class);
@@ -95,7 +93,6 @@ class SecurityIT extends FacadeIT {
     assertThat(response.getStatusCode()).isNotEqualTo(HttpStatus.UNAUTHORIZED);
     assertThat(response.getStatusCode()).isNotEqualTo(HttpStatus.FORBIDDEN);
   }
-
 
   @Test
   void notes_get_requires_authentication() {
@@ -118,7 +115,6 @@ class SecurityIT extends FacadeIT {
         restTemplate.withBasicAuth(studentEmail, RAW_PASSWORD).getForEntity("/notes", String.class);
     assertThat(asStudent.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
-
 
   @Test
   void notes_post_is_forbidden_for_student() {
@@ -155,7 +151,6 @@ class SecurityIT extends FacadeIT {
     assertThat(asAdmin.getStatusCode()).isNotIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);
   }
 
-
   @Test
   void students_endpoint_is_admin_only() {
     var anonymous = restTemplate.getForEntity("/students", String.class);
@@ -187,7 +182,6 @@ class SecurityIT extends FacadeIT {
     assertThat(asTeacher.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 
-
   @Test
   void unmapped_endpoint_defaults_to_admin_only() {
     var asTeacher =
@@ -195,7 +189,6 @@ class SecurityIT extends FacadeIT {
             .withBasicAuth(teacherEmail, RAW_PASSWORD)
             .getForEntity("/some-unmapped-path", String.class);
     assertThat(asTeacher.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
 
     var asAdmin =
         restTemplate
