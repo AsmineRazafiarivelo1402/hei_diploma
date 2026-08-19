@@ -154,6 +154,8 @@ dependencies {
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
 implementation 'org.springframework.boot:spring-boot-starter-security'
+implementation 'com.itextpdf:itext7-core:7.2.5'
+implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 
 
 }
