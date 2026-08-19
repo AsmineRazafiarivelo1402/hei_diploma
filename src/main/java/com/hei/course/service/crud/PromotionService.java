@@ -67,7 +67,7 @@ public class PromotionService {
         .findByStartYearAndEndYear(model.getStartYear(), model.getEndYear())
         .ifPresent(
             existing -> {
-              // ✅ Correction : comparer avec entity.getId()
+              // ✅ Correction : autoriser si c’est la même promotion
               if (!existing.getId().equals(entity.getId())) {
                 throw new ConflictException(
                     "Promotion already exists for years "
