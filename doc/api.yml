@@ -42,6 +42,10 @@ tags:
     description: Student-to-group assignments
   - name: Group Exams
     description: Group-to-exam associations
+  - name: Transcripts
+    description: Student transcript management
+  - name: Graduates
+    description: Graduate management (ranking and diploma lists)
 
 paths:
   /users:
@@ -1618,6 +1622,134 @@ paths:
                   $ref: '#/components/schemas/GroupExam'
         '404':
           description: Group not found
+
+  /releves/{studentId}:
+    get:
+      tags: [Transcripts]
+      summary: Get student transcript as PDF
+      description: Generate and download a PDF transcript for a student
+      operationId: getTranscript
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the student
+      responses:
+        '200':
+          description: PDF transcript file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Not authenticated
+        '403':
+          description: Access denied (student trying to access another student's transcript)
+        '404':
+          description: Student not found
+
+  /releves/{studentId}/email:
+    post:
+      tags: [Transcripts]
+      summary: Request transcript by email
+      description: Send a transcript to the student's email address asynchronously
+      operationId: requestTranscriptByEmail
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the student
+      responses:
+        '202':
+          description: Email request accepted (asynchronous processing)
+        '401':
+          description: Not authenticated
+        '403':
+          description: Access denied (student trying to request another student's transcript)
+        '404':
+          description: Student not found
+
+  /diplomas:
+    get:
+      tags: [Graduates]
+      summary: Download graduate list as Excel
+      description: Generate and download an Excel file containing ranked graduates for a promotion
+      operationId: downloadGraduateList
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: promotionId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the promotion
+      responses:
+        '200':
+          description: Excel file with graduate list
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Not authenticated
+        '403':
+          description: Access denied
+        '404':
+          description: Promotion not found
+
+  /diplomas/view:
+    get:
+      tags: [Graduates]
+      summary: View graduate list as HTML
+      description: Display a web page with the ranked graduates list for a promotion
+      operationId: viewGraduateList
+      parameters:
+        - name: promotionId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the promotion
+      responses:
+        '200':
+          description: HTML page with graduate list
+          content:
+            text/html:
+              schema:
+                type: string
+        '404':
+          description: Promotion not found
+
+  /promotions/view:
+    get:
+      tags: [Promotions]
+      summary: View promotions as HTML
+      description: Display a web page with the list of all promotions
+      operationId: viewPromotions
+      responses:
+        '200':
+          description: HTML page with promotions list
+          content:
+            text/html:
+              schema:
+                type: string
 
 components:
   securitySchemes:
