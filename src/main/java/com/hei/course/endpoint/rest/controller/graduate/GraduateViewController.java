@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @AllArgsConstructor
 public class GraduateViewController {
 
-    private final GraduateRankingService graduateRankingService;
+  private final GraduateRankingService graduateRankingService;
 
-    @GetMapping("/diplomas/view")
-    public String listGraduates(@RequestParam UUID promotionId, Model model) {
-        model.addAttribute("promotionId", promotionId);
-        model.addAttribute("rankedGraduates", graduateRankingService.rankGraduates(promotionId));
-        return "graduates";
-    }
+  @GetMapping("/diplomas/view")
+  public String listGraduates(@RequestParam UUID promotionId, Model model) {
+    model.addAttribute("promotionId", promotionId);
+    model.addAttribute("rankedGraduates", graduateRankingService.rankGraduates(promotionId));
+    return "graduates";
+  }
 }

@@ -24,9 +24,9 @@ public class TranscriptService {
 
   public void sendTranscriptByEmail(UUID studentId) {
     JStudent student =
-            studentRepository
-                    .findById(studentId)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
 
     var transcript = transcriptComputationService.computeFor(studentId);
     var pdfFile = transcriptPdfWriter.toPdf(student, transcript);
@@ -41,12 +41,14 @@ public class TranscriptService {
     try {
       var to = new InternetAddress(student.getEmail());
       return new Email(
-              to,
-              List.of(),
-              List.of(),
-              "Votre relevé de notes",
-              "Bonjour " + student.getFirstName() + ", veuillez trouver votre relevé de notes ci-joint.",
-              List.of(pdfFile));
+          to,
+          List.of(),
+          List.of(),
+          "Votre relevé de notes",
+          "Bonjour "
+              + student.getFirstName()
+              + ", veuillez trouver votre relevé de notes ci-joint.",
+          List.of(pdfFile));
     } catch (AddressException e) {
       throw new RuntimeException("Invalid student email: " + student.getEmail(), e);
     }

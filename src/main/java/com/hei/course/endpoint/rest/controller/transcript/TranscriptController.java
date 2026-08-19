@@ -35,7 +35,7 @@ public class TranscriptController {
 
   @PostMapping("/releves/{studentId}/email")
   public ResponseEntity<Void> requestTranscriptByEmail(
-          @PathVariable UUID studentId, @AuthenticationPrincipal UserPrincipal principal) {
+      @PathVariable UUID studentId, @AuthenticationPrincipal UserPrincipal principal) {
     if (isStudentRequestingSomeoneElse(studentId, principal)) {
       return ResponseEntity.status(403).build();
     }
@@ -46,15 +46,15 @@ public class TranscriptController {
 
   @GetMapping("/releves/{studentId}")
   public ResponseEntity<byte[]> getTranscript(
-          @PathVariable UUID studentId, @AuthenticationPrincipal UserPrincipal principal) {
+      @PathVariable UUID studentId, @AuthenticationPrincipal UserPrincipal principal) {
     if (isStudentRequestingSomeoneElse(studentId, principal)) {
       return ResponseEntity.status(403).build();
     }
 
     JStudent student =
-            studentRepository
-                    .findById(studentId)
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
 
     var transcript = transcriptComputationService.computeFor(studentId);
     File pdfFile = transcriptPdfWriter.toPdf(student, transcript);
@@ -62,12 +62,14 @@ public class TranscriptController {
     byte[] pdfBytes = readFile(pdfFile);
 
     var contentDisposition =
-            ContentDisposition.attachment().filename("releve-" + student.getReference() + ".pdf").build();
+        ContentDisposition.attachment()
+            .filename("releve-" + student.getReference() + ".pdf")
+            .build();
 
     return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdfBytes);
+        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+        .contentType(MediaType.APPLICATION_PDF)
+        .body(pdfBytes);
   }
 
   private byte[] readFile(File file) {
@@ -80,7 +82,7 @@ public class TranscriptController {
 
   private boolean isStudentRequestingSomeoneElse(UUID studentId, UserPrincipal principal) {
     boolean isStudent =
-            principal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
+        principal.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
     return isStudent && !principal.getUser().getId().equals(studentId);
   }
 }

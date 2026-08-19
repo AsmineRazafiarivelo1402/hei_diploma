@@ -13,12 +13,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class GraduateExcelWriter {
 
-  private static final String[] HEADERS = {"Rang", "Référence", "Nom", "Prénom", "Email", "Moyenne"};
+  private static final String[] HEADERS = {
+    "Rang", "Référence", "Nom", "Prénom", "Email", "Moyenne"
+  };
 
   /** Expects rankings already sorted by rank ascending (rank 1 first). */
   public byte[] toExcel(List<GraduateRanking> rankedGraduates) {
     try (XSSFWorkbook workbook = new XSSFWorkbook();
-         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       XSSFSheet sheet = workbook.createSheet("Diplômés");
       writeHeader(workbook, sheet);
       writeRows(sheet, rankedGraduates);

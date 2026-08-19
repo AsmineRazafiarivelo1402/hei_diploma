@@ -15,29 +15,32 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class GraduateRankingService {
 
-    private final GraduateEligibilityService graduateEligibilityService;
-    private final TranscriptComputationService transcriptComputationService;
+  private final GraduateEligibilityService graduateEligibilityService;
+  private final TranscriptComputationService transcriptComputationService;
 
-    /** Graduates of the promotion, ranked by descending general average (rank 1 = best average). */
-    public List<GraduateRanking> rankGraduates(UUID promotionId) {
-        var graduates = graduateEligibilityService.findGraduates(promotionId);
+  /** Graduates of the promotion, ranked by descending general average (rank 1 = best average). */
+  public List<GraduateRanking> rankGraduates(UUID promotionId) {
+    var graduates = graduateEligibilityService.findGraduates(promotionId);
 
-        List<Map.Entry<JStudent, BigDecimal>> studentsWithAverage =
-                graduates.stream()
-                        .map(
-                                student ->
-                                        Map.entry(
-                                                student, transcriptComputationService.computeFor(student.getId()).generalAverage()))
-                        .sorted(Comparator.<Map.Entry<JStudent, BigDecimal>>comparingDouble(entry -> entry.getValue().doubleValue())
-                                .reversed())
-                        .toList();
+    List<Map.Entry<JStudent, BigDecimal>> studentsWithAverage =
+        graduates.stream()
+            .map(
+                student ->
+                    Map.entry(
+                        student,
+                        transcriptComputationService.computeFor(student.getId()).generalAverage()))
+            .sorted(
+                Comparator.<Map.Entry<JStudent, BigDecimal>>comparingDouble(
+                        entry -> entry.getValue().doubleValue())
+                    .reversed())
+            .toList();
 
-        return IntStream.range(0, studentsWithAverage.size())
-                .mapToObj(
-                        index -> {
-                            var entry = studentsWithAverage.get(index);
-                            return new GraduateRanking(index + 1, entry.getKey(), entry.getValue());
-                        })
-                .toList();
-    }
+    return IntStream.range(0, studentsWithAverage.size())
+        .mapToObj(
+            index -> {
+              var entry = studentsWithAverage.get(index);
+              return new GraduateRanking(index + 1, entry.getKey(), entry.getValue());
+            })
+        .toList();
+  }
 }

@@ -22,11 +22,16 @@ public class TranscriptPdfWriter {
       File file = Files.createTempFile("releve-" + student.getReference(), ".pdf").toFile();
 
       try (PdfDocument pdfDocument = new PdfDocument(new PdfWriter(file));
-           Document document = new Document(pdfDocument)) {
+          Document document = new Document(pdfDocument)) {
         document.add(new Paragraph("Relevé de notes"));
         document.add(
-                new Paragraph(
-                        student.getFirstName() + " " + student.getLastName() + " (" + student.getReference() + ")"));
+            new Paragraph(
+                student.getFirstName()
+                    + " "
+                    + student.getLastName()
+                    + " ("
+                    + student.getReference()
+                    + ")"));
 
         for (SemesterTranscript semester : transcript.semesters()) {
           addSemesterSection(document, semester);

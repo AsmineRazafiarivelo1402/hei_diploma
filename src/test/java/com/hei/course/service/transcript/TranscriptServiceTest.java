@@ -28,64 +28,64 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class TranscriptServiceTest {
 
-    @Mock private JStudentRepository studentRepository;
-    @Mock private TranscriptComputationService transcriptComputationService;
-    @Mock private TranscriptPdfWriter transcriptPdfWriter;
-    @Mock private BucketComponent bucketComponent;
-    @Mock private Mailer mailer;
+  @Mock private JStudentRepository studentRepository;
+  @Mock private TranscriptComputationService transcriptComputationService;
+  @Mock private TranscriptPdfWriter transcriptPdfWriter;
+  @Mock private BucketComponent bucketComponent;
+  @Mock private Mailer mailer;
 
-    private TranscriptService service;
+  private TranscriptService service;
 
-    @BeforeEach
-    void setUp() {
-        service =
-                new TranscriptService(
-                        studentRepository,
-                        transcriptComputationService,
-                        transcriptPdfWriter,
-                        bucketComponent,
-                        mailer);
-    }
+  @BeforeEach
+  void setUp() {
+    service =
+        new TranscriptService(
+            studentRepository,
+            transcriptComputationService,
+            transcriptPdfWriter,
+            bucketComponent,
+            mailer);
+  }
 
-    @Test
-    void sends_email_with_generated_pdf_and_uploads_it_to_s3() throws Exception {
-        UUID studentId = UUID.randomUUID();
-        JStudent student = new JStudent();
-        student.setId(studentId);
-        student.setFirstName("Fenitra");
-        student.setLastName("Rakoto");
-        student.setEmail("fenitra@example.com");
+  @Test
+  void sends_email_with_generated_pdf_and_uploads_it_to_s3() throws Exception {
+    UUID studentId = UUID.randomUUID();
+    JStudent student = new JStudent();
+    student.setId(studentId);
+    student.setFirstName("Fenitra");
+    student.setLastName("Rakoto");
+    student.setEmail("fenitra@example.com");
 
-        Transcript transcript = new Transcript(List.of(), 0, BigDecimal.ZERO);
+    Transcript transcript = new Transcript(List.of(), 0, BigDecimal.ZERO);
 
-        File pdfFile = File.createTempFile("releve-test", ".pdf");
-        pdfFile.deleteOnExit();
+    File pdfFile = File.createTempFile("releve-test", ".pdf");
+    pdfFile.deleteOnExit();
 
-        when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
-        when(transcriptComputationService.computeFor(studentId)).thenReturn(transcript);
-        when(transcriptPdfWriter.toPdf(student, transcript)).thenReturn(pdfFile);
+    when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
+    when(transcriptComputationService.computeFor(studentId)).thenReturn(transcript);
+    when(transcriptPdfWriter.toPdf(student, transcript)).thenReturn(pdfFile);
 
-        service.sendTranscriptByEmail(studentId);
+    service.sendTranscriptByEmail(studentId);
 
-        verify(bucketComponent, times(1)).upload(any(File.class), any(String.class));
+    verify(bucketComponent, times(1)).upload(any(File.class), any(String.class));
 
-        var emailCaptor = org.mockito.ArgumentCaptor.forClass(Email.class);
-        verify(mailer, times(1)).accept(emailCaptor.capture());
+    var emailCaptor = org.mockito.ArgumentCaptor.forClass(Email.class);
+    verify(mailer, times(1)).accept(emailCaptor.capture());
 
-        Email sentEmail = emailCaptor.getValue();
-        assertThat(sentEmail.to().getAddress()).isEqualTo("fenitra@example.com");
-        assertThat(sentEmail.attachments()).containsExactly(pdfFile);
-    }
+    Email sentEmail = emailCaptor.getValue();
+    assertThat(sentEmail.to().getAddress()).isEqualTo("fenitra@example.com");
+    assertThat(sentEmail.attachments()).containsExactly(pdfFile);
+  }
 
-    @Test
-    void throws_when_student_does_not_exist() {
-        UUID studentId = UUID.randomUUID();
-        when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
+  @Test
+  void throws_when_student_does_not_exist() {
+    UUID studentId = UUID.randomUUID();
+    when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.sendTranscriptByEmail(studentId))
-                .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> service.sendTranscriptByEmail(studentId))
+        .isInstanceOf(IllegalArgumentException.class);
 
-        verify(mailer, never()).accept(any());
-        verify(bucketComponent, never()).upload(any(), any());
-    }
+    verify(mailer, never()).accept(any());
+    verify(bucketComponent, never()).upload(any(), any());
+  }
 }

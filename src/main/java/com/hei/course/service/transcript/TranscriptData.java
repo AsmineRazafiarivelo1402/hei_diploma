@@ -6,20 +6,20 @@ import java.util.List;
 
 public class TranscriptData {
 
-    public record CourseAverage(String courseTitle, int credit, BigDecimal average) {}
+  public record CourseAverage(String courseTitle, int credit, BigDecimal average) {}
 
-    public enum Status {
-        COMPLETE,
-        PROVISIONAL
-    }
+  public enum Status {
+    COMPLETE,
+    PROVISIONAL
+  }
 
-    public record SemesterTranscript(
-            SemesterEnum semester,
-            List<CourseAverage> courseAverages,
-            int totalCredits,
-            BigDecimal average,
-            Status status) {}
+  public record SemesterTranscript(
+      SemesterEnum semester,
+      List<CourseAverage> courseAverages,
+      int totalCredits,
+      BigDecimal average,
+      Status status) {}
 
-    public record Transcript(
-            List<SemesterTranscript> semesters, int totalCredits, BigDecimal generalAverage) {}
+  public record Transcript(
+      List<SemesterTranscript> semesters, int totalCredits, BigDecimal generalAverage) {}
 }
