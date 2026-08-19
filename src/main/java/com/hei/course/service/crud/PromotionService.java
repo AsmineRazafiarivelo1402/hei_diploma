@@ -32,6 +32,11 @@ public class PromotionService {
 
     JPromotion entity = PromotionMapper.toEntity(model);
 
+    // ✅ S’assurer que l’ID est généré si nécessaire
+    if (entity.getId() == null) {
+      entity.setId(UUID.randomUUID());
+    }
+
     JPromotion savedEntity = promotionRepository.save(entity);
 
     return PromotionMapper.toModel(savedEntity);
@@ -62,7 +67,8 @@ public class PromotionService {
         .findByStartYearAndEndYear(model.getStartYear(), model.getEndYear())
         .ifPresent(
             existing -> {
-              if (!existing.getId().equals(id)) {
+              // ✅ Correction : autoriser si c’est la même promotion
+              if (!existing.getId().equals(entity.getId())) {
                 throw new ConflictException(
                     "Promotion already exists for years "
                         + model.getStartYear()
