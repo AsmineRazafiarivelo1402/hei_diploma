@@ -10,7 +10,7 @@ plugins {
 
     id 'jacoco'
 
-
+    
 }
 
 jacoco {
@@ -110,9 +110,6 @@ jacocoTestReport {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.2.2'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE'
-    implementation 'com.itextpdf:itext7-core:8.0.3'
     testImplementation 'org.testcontainers:testcontainers:2.0.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
     implementation 'org.flywaydb:flyway-core:9.22.3'
@@ -141,7 +138,6 @@ dependencies {
     implementation 'com.sun.activation:jakarta.activation:2.0.1'
 
     implementation 'org.apache.tika:tika-core:2.9.1'
-    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
     implementation 'org.reflections:reflections:0.10.2'
 
@@ -157,7 +153,7 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.2'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+implementation 'org.springframework.boot:spring-boot-starter-security'
 
 
 }
