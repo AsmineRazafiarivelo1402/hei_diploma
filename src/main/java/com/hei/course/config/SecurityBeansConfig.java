@@ -136,6 +136,8 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/diplomas")
                     .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/diplomas/view")
+                        .hasRole("ADMIN")
                     .anyRequest()
                     .hasRole("ADMIN"))
         .httpBasic(withDefaults());

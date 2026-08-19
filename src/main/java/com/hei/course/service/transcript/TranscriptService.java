@@ -4,7 +4,6 @@ import com.hei.course.entity.JStudent;
 import com.hei.course.file.bucket.BucketComponent;
 import com.hei.course.mail.Email;
 import com.hei.course.mail.Mailer;
-import com.hei.course.repository.JNoteRepository;
 import com.hei.course.repository.JStudentRepository;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -18,19 +17,19 @@ import org.springframework.stereotype.Service;
 public class TranscriptService {
 
   private final JStudentRepository studentRepository;
-  private final JNoteRepository noteRepository;
+  private final TranscriptComputationService transcriptComputationService;
   private final TranscriptPdfWriter transcriptPdfWriter;
   private final BucketComponent bucketComponent;
   private final Mailer mailer;
 
   public void sendTranscriptByEmail(UUID studentId) {
     JStudent student =
-        studentRepository
-            .findById(studentId)
-            .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
+            studentRepository
+                    .findById(studentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown student: " + studentId));
 
-    var notes = noteRepository.findByStudent_Id(studentId);
-    var pdfFile = transcriptPdfWriter.toPdf(student, notes);
+    var transcript = transcriptComputationService.computeFor(studentId);
+    var pdfFile = transcriptPdfWriter.toPdf(student, transcript);
 
     var bucketKey = "transcripts/" + studentId + "/" + UUID.randomUUID() + ".pdf";
     bucketComponent.upload(pdfFile, bucketKey);
@@ -42,14 +41,12 @@ public class TranscriptService {
     try {
       var to = new InternetAddress(student.getEmail());
       return new Email(
-          to,
-          List.of(),
-          List.of(),
-          "Votre relevé de notes",
-          "Bonjour "
-              + student.getFirstName()
-              + ", veuillez trouver votre relevé de notes ci-joint.",
-          List.of(pdfFile));
+              to,
+              List.of(),
+              List.of(),
+              "Votre relevé de notes",
+              "Bonjour " + student.getFirstName() + ", veuillez trouver votre relevé de notes ci-joint.",
+              List.of(pdfFile));
     } catch (AddressException e) {
       throw new RuntimeException("Invalid student email: " + student.getEmail(), e);
     }

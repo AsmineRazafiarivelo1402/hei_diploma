@@ -1,9 +1,6 @@
 package com.hei.course.service.graduate;
 
-import com.hei.course.entity.JStudent;
 import java.io.ByteArrayOutputStream;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -16,17 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class GraduateExcelWriter {
 
-  private static final DateTimeFormatter BIRTHDATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
-  private static final String[] HEADERS = {
-    "Référence", "Nom", "Prénom", "Email", "Date de naissance"
-  };
+  private static final String[] HEADERS = {"Rang", "Référence", "Nom", "Prénom", "Email", "Moyenne"};
 
-  public byte[] toExcel(List<JStudent> graduates) {
+  /** Expects rankings already sorted by rank ascending (rank 1 first). */
+  public byte[] toExcel(List<GraduateRanking> rankedGraduates) {
     try (XSSFWorkbook workbook = new XSSFWorkbook();
-        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       XSSFSheet sheet = workbook.createSheet("Diplômés");
       writeHeader(workbook, sheet);
-      writeRows(sheet, graduates);
+      writeRows(sheet, rankedGraduates);
       autoSizeColumns(sheet);
 
       workbook.write(out);
@@ -50,19 +45,17 @@ public class GraduateExcelWriter {
     }
   }
 
-  private void writeRows(XSSFSheet sheet, List<JStudent> graduates) {
+  private void writeRows(XSSFSheet sheet, List<GraduateRanking> rankedGraduates) {
     int rowIndex = 1;
-    for (JStudent student : graduates) {
+    for (GraduateRanking ranking : rankedGraduates) {
+      var student = ranking.student();
       Row row = sheet.createRow(rowIndex++);
-      row.createCell(0).setCellValue(student.getReference());
-      row.createCell(1).setCellValue(student.getLastName());
-      row.createCell(2).setCellValue(student.getFirstName());
-      row.createCell(3).setCellValue(student.getEmail());
-      row.createCell(4)
-          .setCellValue(
-              student.getBirthdate() == null
-                  ? ""
-                  : BIRTHDATE_FORMAT.format(student.getBirthdate().atZone(ZoneOffset.UTC)));
+      row.createCell(0).setCellValue(ranking.rank());
+      row.createCell(1).setCellValue(student.getReference());
+      row.createCell(2).setCellValue(student.getLastName());
+      row.createCell(3).setCellValue(student.getFirstName());
+      row.createCell(4).setCellValue(student.getEmail());
+      row.createCell(5).setCellValue(ranking.average().doubleValue());
     }
   }
 
