@@ -19,11 +19,6 @@ public class GraduateController {
   private final GraduateRankingService graduateRankingService;
   private final GraduateExcelWriter graduateExcelWriter;
 
-  /**
-   * Downloads the Excel list of graduated students for a given promotion, ranked by descending
-   * general average (rank 1 = best). A student is considered graduated only if every course average
-   * (S1-S6) is >= 10. Restricted to ADMIN, see SecurityBeansConfig.
-   */
   @GetMapping(
       value = "/diplomas",
       produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
