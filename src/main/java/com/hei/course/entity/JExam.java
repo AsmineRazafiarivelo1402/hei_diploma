@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -25,6 +27,7 @@ public class JExam {
   private BigDecimal coefficient;
 
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "exam_type", nullable = false)
   private ExamTypeEnum examType;
 

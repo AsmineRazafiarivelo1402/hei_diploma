@@ -1,5 +1,7 @@
 package com.hei.course.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.*;
@@ -12,6 +14,12 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @EqualsAndHashCode
 @SuperBuilder
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = Admin.class, name = "ADMIN"),
+  @JsonSubTypes.Type(value = Teacher.class, name = "TEACHER"),
+  @JsonSubTypes.Type(value = Student.class, name = "STUDENT")
+})
 public abstract class Users {
   private UUID id;
   private String reference;

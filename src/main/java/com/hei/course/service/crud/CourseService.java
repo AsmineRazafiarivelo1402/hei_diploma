@@ -1,6 +1,7 @@
 package com.hei.course.service.crud;
 
 import com.hei.course.entity.JCourses;
+import com.hei.course.exception.NotFoundException;
 import com.hei.course.mapper.CourseMapper;
 import com.hei.course.model.Courses;
 import com.hei.course.repository.JCourseRepository;
@@ -31,7 +32,7 @@ public class CourseService {
     JCourses entity =
         courseRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Course not found: " + id));
 
     return CourseMapper.toModel(entity);
   }
@@ -40,7 +41,7 @@ public class CourseService {
     JCourses entity =
         courseRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Course not found: " + id));
 
     entity.setReference(model.getReference());
     entity.setTitle(model.getTitle());
@@ -55,7 +56,7 @@ public class CourseService {
     JCourses entity =
         courseRepository
             .findById(id)
-            .orElseThrow(() -> new RuntimeException("Course not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Course not found: " + id));
 
     courseRepository.delete(entity);
   }

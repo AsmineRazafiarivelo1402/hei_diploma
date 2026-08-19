@@ -8,34 +8,36 @@ import com.hei.course.model.Admin;
 import com.hei.course.model.Student;
 import com.hei.course.model.Teacher;
 import com.hei.course.model.Users;
+import org.hibernate.Hibernate;
 
 public class UserMapper {
 
   private UserMapper() {}
 
   public static Users toModel(JUsers entity) {
+    JUsers resolved = (JUsers) Hibernate.unproxy(entity);
     Users user;
 
-    if (entity instanceof JStudent) {
+    if (resolved instanceof JStudent) {
       user = new Student();
-    } else if (entity instanceof JTeacher) {
+    } else if (resolved instanceof JTeacher) {
       user = new Teacher();
-    } else if (entity instanceof JAdmin) {
+    } else if (resolved instanceof JAdmin) {
       user = new Admin();
     } else {
-      throw new IllegalArgumentException("Unknown users: " + entity.getClass());
+      throw new IllegalArgumentException("Unknown users: " + resolved.getClass());
     }
 
-    user.setId(entity.getId());
-    user.setReference(entity.getReference());
-    user.setFirstName(entity.getFirstName());
-    user.setLastName(entity.getLastName());
-    user.setBirthdate(entity.getBirthdate());
-    user.setEmail(entity.getEmail());
-    user.setPassword(entity.getPassword());
-    user.setAddress(entity.getAddress());
-    user.setPhoneNumber(entity.getPhoneNumber());
-    user.setRole(entity.getRole());
+    user.setId(resolved.getId());
+    user.setReference(resolved.getReference());
+    user.setFirstName(resolved.getFirstName());
+    user.setLastName(resolved.getLastName());
+    user.setBirthdate(resolved.getBirthdate());
+    user.setEmail(resolved.getEmail());
+    user.setPassword(resolved.getPassword());
+    user.setAddress(resolved.getAddress());
+    user.setPhoneNumber(resolved.getPhoneNumber());
+    user.setRole(resolved.getRole());
 
     return user;
   }

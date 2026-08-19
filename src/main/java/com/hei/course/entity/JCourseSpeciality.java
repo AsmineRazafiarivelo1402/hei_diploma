@@ -6,6 +6,8 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -21,6 +23,7 @@ public class JCourseSpeciality {
   private JCourses courses;
 
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(name = "speciality_enum", nullable = false)
   private SpecialityEnum specialityEnum;
 
