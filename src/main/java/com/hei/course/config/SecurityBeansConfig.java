@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 @Configuration
 @EnableMethodSecurity
 public class SecurityBeansConfig {
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
@@ -23,7 +22,6 @@ public class SecurityBeansConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
             auth ->
@@ -39,6 +37,8 @@ public class SecurityBeansConfig {
                     .requestMatchers(HttpMethod.DELETE, "/notes/**", "/note-histories/**")
                     .hasAnyRole("TEACHER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/releves/**")
+                    .hasAnyRole("STUDENT", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/releves/**")
                     .hasAnyRole("STUDENT", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/users/**")
                     .hasRole("ADMIN")
@@ -154,7 +154,6 @@ public class SecurityBeansConfig {
             })
         .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())
         .httpBasic(withDefaults());
-
     return http.build();
   }
 }
