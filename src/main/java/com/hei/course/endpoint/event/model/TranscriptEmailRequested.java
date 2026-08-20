@@ -2,16 +2,13 @@ package com.hei.course.endpoint.event.model;
 
 import java.time.Duration;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @Data
+@ToString
 @EqualsAndHashCode(callSuper = false)
 public class TranscriptEmailRequested extends PojaEvent {
 
