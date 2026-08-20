@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
@@ -150,9 +151,16 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN"))
         .exceptionHandling(
             exceptions -> {
+              var formLoginEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
               var basicEntryPoint = new BasicAuthenticationEntryPoint();
               basicEntryPoint.setRealmName("hei-diploma");
-              exceptions.authenticationEntryPoint(basicEntryPoint);
+              exceptions
+                  .defaultAuthenticationEntryPointFor(
+                      formLoginEntryPoint,
+                      request ->
+                          request.getHeader("Accept") != null
+                              && request.getHeader("Accept").contains("text/html"))
+                  .defaultAuthenticationEntryPointFor(basicEntryPoint, request -> true);
             })
         .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())
         .httpBasic(withDefaults());
