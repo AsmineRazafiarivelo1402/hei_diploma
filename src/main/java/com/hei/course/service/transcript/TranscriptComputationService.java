@@ -5,6 +5,7 @@ import com.hei.course.entity.JExam;
 import com.hei.course.entity.JNote;
 import com.hei.course.model.SemesterEnum;
 import com.hei.course.repository.JAffectationRepository;
+import com.hei.course.repository.JExamRepository;
 import com.hei.course.repository.JGroupExamRepository;
 import com.hei.course.repository.JNoteRepository;
 import com.hei.course.service.transcript.TranscriptData.CourseAverage;
@@ -13,28 +14,45 @@ import com.hei.course.service.transcript.TranscriptData.Status;
 import com.hei.course.service.transcript.TranscriptData.Transcript;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
 public class TranscriptComputationService {
 
   private final JNoteRepository noteRepository;
   private final JAffectationRepository affectationRepository;
   private final JGroupExamRepository groupExamRepository;
+  private final JExamRepository examRepository;
 
+  public TranscriptComputationService(
+      JNoteRepository noteRepository,
+      JAffectationRepository affectationRepository,
+      JGroupExamRepository groupExamRepository,
+      JExamRepository examRepository) {
+    this.noteRepository = noteRepository;
+    this.affectationRepository = affectationRepository;
+    this.groupExamRepository = groupExamRepository;
+    this.examRepository = examRepository;
+  }
+
+  @Transactional(readOnly = true)
   public Transcript computeFor(UUID studentId) {
     List<JNote> notes = noteRepository.findByStudent_Id(studentId);
 
     Map<SemesterSummaryKey, List<JNote>> notesBySemester =
         notes.stream()
+            .map(
+                note -> {
+                  JExam exam =
+                      examRepository
+                          .findByIdWithSemester(note.getExam().getId())
+                          .orElse(note.getExam());
+                  note.setExam(exam); // réinjecter l'examen chargé
+                  return note;
+                })
             .collect(
                 Collectors.groupingBy(
                     note ->
@@ -56,6 +74,7 @@ public class TranscriptComputationService {
 
   private SemesterTranscript toSemesterTranscript(
       UUID studentId, SemesterSummaryKey semesterKey, List<JNote> notesForSemester) {
+
     Map<UUID, List<JNote>> notesByCourse =
         notesForSemester.stream()
             .collect(Collectors.groupingBy(note -> note.getExam().getCourses().getId()));
@@ -86,7 +105,6 @@ public class TranscriptComputationService {
     return allExpectedCoursesGraded ? Status.COMPLETE : Status.PROVISIONAL;
   }
 
-  /** The set of courses the student's group is expected to be graded on for a given semester. */
   private Set<UUID> expectedCourseIds(UUID studentId, UUID semesterId) {
     return affectationRepository
         .findByStudent_IdAndSemester_Id(studentId, semesterId)

@@ -13,6 +13,7 @@ import com.hei.course.entity.JSemester;
 import com.hei.course.entity.JStudent;
 import com.hei.course.model.SemesterEnum;
 import com.hei.course.repository.JAffectationRepository;
+import com.hei.course.repository.JExamRepository;
 import com.hei.course.repository.JGroupExamRepository;
 import com.hei.course.repository.JNoteRepository;
 import com.hei.course.service.transcript.TranscriptData.CourseAverage;
@@ -35,6 +36,7 @@ class TranscriptComputationServiceTest {
   @Mock private JNoteRepository noteRepository;
   @Mock private JAffectationRepository affectationRepository;
   @Mock private JGroupExamRepository groupExamRepository;
+  @Mock private JExamRepository examRepository;
 
   private TranscriptComputationService service;
   private final UUID studentId = UUID.randomUUID();
@@ -44,7 +46,7 @@ class TranscriptComputationServiceTest {
   void setUp() {
     service =
         new TranscriptComputationService(
-            noteRepository, affectationRepository, groupExamRepository);
+            noteRepository, affectationRepository, groupExamRepository, examRepository);
   }
 
   @Test
