@@ -8,6 +8,7 @@ import com.hei.course.model.Promotion;
 import com.hei.course.model.RoleEnum;
 import com.hei.course.repository.JAdminRepository;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,14 @@ class PromotionCrudIT extends FacadeIT {
     restTemplate = rawRestTemplate.withBasicAuth(adminEmail, RAW_PASSWORD);
   }
 
+  // Base large et aléatoire au chargement de la classe, puis incrément garanti
+  // pour que chaque promotion créée pendant cette exécution de test ait une
+  // plage d'années unique (évite les faux 409 CONFLICT entre tests).
+  private static final AtomicInteger YEAR_SEQUENCE =
+      new AtomicInteger(3000 + Math.abs(UUID.randomUUID().hashCode() % 10_000));
+
   private Promotion newPromotion() {
-    int start = 2000 + Math.abs(UUID.randomUUID().hashCode() % 500);
+    int start = YEAR_SEQUENCE.getAndAdd(4);
     return Promotion.builder().startYear(start).endYear(start + 3).build();
   }
 
