@@ -157,12 +157,12 @@ public class SecurityBeansConfig {
               exceptions
                   .defaultAuthenticationEntryPointFor(
                       formLoginEntryPoint,
-                      request -> request.getHeader("Accept") != null
-                          && request.getHeader("Accept").contains("text/html"))
+                      request ->
+                          request.getHeader("Accept") != null
+                              && request.getHeader("Accept").contains("text/html"))
                   .defaultAuthenticationEntryPointFor(basicEntryPoint, request -> true);
             })
-        .formLogin(
-            form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())
+        .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())
         .httpBasic(withDefaults());
     return http.build();
   }
