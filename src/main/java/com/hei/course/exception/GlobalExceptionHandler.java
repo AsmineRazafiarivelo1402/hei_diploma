@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
       AccessDeniedException exception, HttpServletRequest request) {
 
     return buildResponse(HttpStatus.FORBIDDEN, exception.getMessage(), request.getRequestURI());
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleTypeMismatch(
+      MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
+
+    return buildResponse(
+        HttpStatus.BAD_REQUEST, "Invalid parameter value", request.getRequestURI());
   }
 
   @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
