@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @Configuration
 @EnableMethodSecurity
@@ -26,7 +27,8 @@ public class SecurityBeansConfig {
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.GET, "/ping", "/morning", "/courses/bonjour")
+                auth.requestMatchers(
+                        HttpMethod.GET, "/ping", "/morning", "/courses/bonjour", "/login")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/notes/**", "/note-histories/**")
                     .authenticated()
@@ -138,8 +140,19 @@ public class SecurityBeansConfig {
                     .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/diplomas/view")
                     .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/home")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/mon-releve")
+                    .hasRole("STUDENT")
                     .anyRequest()
                     .hasRole("ADMIN"))
+        .exceptionHandling(
+            exceptions -> {
+              var basicEntryPoint = new BasicAuthenticationEntryPoint();
+              basicEntryPoint.setRealmName("hei-diploma");
+              exceptions.authenticationEntryPoint(basicEntryPoint);
+            })
+        .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())
         .httpBasic(withDefaults());
 
     return http.build();
