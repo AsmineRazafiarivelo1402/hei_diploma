@@ -143,7 +143,7 @@ public class SecurityBeansConfig {
                     .requestMatchers(HttpMethod.GET, "/home")
                     .authenticated()
                     .requestMatchers(HttpMethod.GET, "/mon-releve")
-                    .hasRole("STUDENT")
+                    .hasAnyRole("STUDENT", "ADMIN")
                     .anyRequest()
                     .hasRole("ADMIN"))
         .exceptionHandling(

@@ -18,6 +18,6 @@ public class GraduateViewController {
   public String listGraduates(@RequestParam UUID promotionId, Model model) {
     model.addAttribute("promotionId", promotionId);
     model.addAttribute("rankedGraduates", graduateRankingService.rankGraduates(promotionId));
-    return "graduates";
+    return "graduate";
   }
 }
