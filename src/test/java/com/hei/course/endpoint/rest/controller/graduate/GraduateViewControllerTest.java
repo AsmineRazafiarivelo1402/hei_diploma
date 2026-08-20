@@ -35,7 +35,7 @@ class GraduateViewControllerTest {
     Model model = new ExtendedModelMap();
     String viewName = controller.listGraduates(promotionId, model);
 
-    assertThat(viewName).isEqualTo("graduates");
+    assertThat(viewName).isEqualTo("graduate");
     assertThat(model.getAttribute("promotionId")).isEqualTo(promotionId);
     assertThat(model.getAttribute("rankedGraduates")).isEqualTo(rankings);
   }
