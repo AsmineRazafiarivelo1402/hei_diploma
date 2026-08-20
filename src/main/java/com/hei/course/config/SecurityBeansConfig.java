@@ -28,6 +28,8 @@ public class SecurityBeansConfig {
                 auth.requestMatchers(
                         HttpMethod.GET, "/ping", "/morning", "/courses/bonjour", "/login")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/login")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/notes/**", "/note-histories/**")
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/notes", "/note-histories")
